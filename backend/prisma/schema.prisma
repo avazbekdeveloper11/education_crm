@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  login     String   @unique
+  password  String
+  name      String?
+  role           String   @default("OWNER")
+  specialization String?
+  centerId       Int?
+  center    Center?  @relation(fields: [centerId], references: [id])
+  createdAt DateTime @default(now())
+}
+model Center {
+  id        Int       @id @default(autoincrement())
+  name      String
+  login     String    @unique
+  password  String
+  status    String    @default("Active")
+  createdAt DateTime  @default(now())
+  users     User[]
+  courses   Course[]
+  groups    Group[]
+  payments  Payment[]
+  students  Student[]
+  attendance Attendance[]
+}
+
+model Course {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  duration    Int       @default(1)
+  price       Float
+  centerId    Int
+  createdAt   DateTime  @default(now())
+  center      Center    @relation(fields: [centerId], references: [id])
+  groups      Group[]
+  payments    Payment[]
+  students    Student[]
+}
+
+model Group {
+  id        Int       @id @default(autoincrement())
+  name      String
+  teacher   String?
+  days      String?
+  time      String?
+  centerId  Int
+  courseId  Int
+  createdAt DateTime  @default(now())
+  course    Course    @relation(fields: [courseId], references: [id])
+  center      Center       @relation(fields: [centerId], references: [id])
+  students    Student[]
+  attendance  Attendance[]
+}
+
+model Student {
+  id        Int       @id @default(autoincrement())
+  name      String
+  phone     String
+  address   String?
+  dob       String?
+  status    String    @default("Active")
+  centerId  Int
+  createdAt DateTime  @default(now())
+  payments  Payment[]
+  courses   Course[]
+  groups    Group[]
+  attendance Attendance[]
+  center    Center    @relation(fields: [centerId], references: [id])
+}
+
+model Payment {
+  id          Int      @id @default(autoincrement())
+  amount      Float
+  studentId   Int
+  courseId    Int
+  centerId    Int
+  paymentDate DateTime @default(now())
+  paymentType String   @default("CASH")
+  periodFrom  DateTime?
+  periodTo    DateTime?
+  notes       String?
+  createdAt   DateTime @default(now())
+  center      Center   @relation(fields: [centerId], references: [id])
+  course      Course   @relation(fields: [courseId], references: [id])
+  student     Student  @relation(fields: [studentId], references: [id])
+}
+
+model Attendance {
+  id          Int      @id @default(autoincrement())
+  date        DateTime @default(now())
+  status      String   @default("PRESENT") // PRESENT, ABSENT, EXCUSED
+  studentId   Int
+  groupId     Int
+  centerId    Int
+  createdAt   DateTime @default(now())
+  
+  student     Student  @relation(fields: [studentId], references: [id])
+  group       Group    @relation(fields: [groupId], references: [id])
+  center      Center   @relation(fields: [centerId], references: [id])
+}
