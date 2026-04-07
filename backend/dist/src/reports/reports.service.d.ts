@@ -18,17 +18,17 @@ export declare class ReportsService {
                 name: string;
             };
         } & {
-            centerId: number;
-            amount: number;
             id: number;
-            studentId: number;
+            createdAt: Date;
+            centerId: number;
             courseId: number;
+            amount: number;
             paymentDate: Date;
             paymentType: string;
             periodFrom: Date | null;
             periodTo: Date | null;
             notes: string | null;
-            createdAt: Date;
+            studentId: number;
         })[];
         dailyStats: (import("@prisma/client").Prisma.PickEnumerable<import("@prisma/client").Prisma.PaymentGroupByOutputType, "paymentDate"[]> & {
             _sum: {

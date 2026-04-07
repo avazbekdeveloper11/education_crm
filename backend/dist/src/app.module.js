@@ -20,12 +20,13 @@ const payments_module_1 = require("./payments/payments.module");
 const users_module_1 = require("./users/users.module");
 const attendance_module_1 = require("./attendance/attendance.module");
 const reports_module_1 = require("./reports/reports.module");
+const leads_module_1 = require("./leads/leads.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [auth_module_1.AuthModule, students_module_1.StudentsModule, courses_module_1.CoursesModule, groups_module_1.GroupsModule, payments_module_1.PaymentsModule, users_module_1.UsersModule, attendance_module_1.AttendanceModule, reports_module_1.ReportsModule],
+        imports: [auth_module_1.AuthModule, students_module_1.StudentsModule, courses_module_1.CoursesModule, groups_module_1.GroupsModule, payments_module_1.PaymentsModule, users_module_1.UsersModule, attendance_module_1.AttendanceModule, reports_module_1.ReportsModule, leads_module_1.LeadsModule],
         controllers: [app_controller_1.AppController, centers_controller_1.CentersController],
         providers: [app_service_1.AppService, prisma_service_1.PrismaService],
     })

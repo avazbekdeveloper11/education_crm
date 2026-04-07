@@ -11,9 +11,10 @@ import { PaymentsModule } from './payments/payments.module';
 import { UsersModule } from './users/users.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { ReportsModule } from './reports/reports.module';
+import { LeadsModule } from './leads/leads.module';
 
 @Module({
-  imports: [AuthModule, StudentsModule, CoursesModule, GroupsModule, PaymentsModule, UsersModule, AttendanceModule, ReportsModule],
+  imports: [AuthModule, StudentsModule, CoursesModule, GroupsModule, PaymentsModule, UsersModule, AttendanceModule, ReportsModule, LeadsModule],
   controllers: [AppController, CentersController],
   providers: [AppService, PrismaService],
 })

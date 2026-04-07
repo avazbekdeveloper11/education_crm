@@ -5,41 +5,41 @@ export declare class UsersController {
     findAll(req: any): Promise<{
         id: number;
         login: string;
-        password: string;
         name: string | null;
+        password: string;
+        createdAt: Date;
         role: string;
         specialization: string | null;
         centerId: number | null;
-        createdAt: Date;
     }[]>;
     create(req: any, data: any): Promise<{
         id: number;
         login: string;
-        password: string;
         name: string | null;
+        password: string;
+        createdAt: Date;
         role: string;
         specialization: string | null;
         centerId: number | null;
-        createdAt: Date;
     }>;
     update(req: any, id: string, data: any): Promise<{
         id: number;
         login: string;
-        password: string;
         name: string | null;
+        password: string;
+        createdAt: Date;
         role: string;
         specialization: string | null;
         centerId: number | null;
-        createdAt: Date;
     }>;
     remove(req: any, id: string): Promise<{
         id: number;
         login: string;
-        password: string;
         name: string | null;
+        password: string;
+        createdAt: Date;
         role: string;
         specialization: string | null;
         centerId: number | null;
-        createdAt: Date;
     }>;
 }
