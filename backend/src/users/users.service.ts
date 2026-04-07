@@ -34,16 +34,20 @@ export class UsersService {
       throw new Error('User not found or access denied');
     }
 
+    const updateData: any = {
+      login: data.login,
+      name: data.name,
+      role: data.role,
+      specialization: data.specialization,
+    };
+    if (data.password && data.password.trim() !== "") {
+      updateData.password = data.password;
+    }
+
     // @ts-ignore
     return this.prisma.user.update({
       where: { id },
-      data: {
-        login: data.login,
-        password: data.password,
-        name: data.name,
-        role: data.role,
-        specialization: data.specialization,
-      }
+      data: updateData
     });
   }
 

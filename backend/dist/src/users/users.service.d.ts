@@ -5,41 +5,41 @@ export declare class UsersService {
     findAll(centerId: number): Promise<{
         id: number;
         login: string;
-        name: string | null;
         password: string;
-        createdAt: Date;
+        name: string | null;
         role: string;
         specialization: string | null;
         centerId: number | null;
+        createdAt: Date;
     }[]>;
     create(data: any, centerId: number): Promise<{
         id: number;
         login: string;
-        name: string | null;
         password: string;
-        createdAt: Date;
+        name: string | null;
         role: string;
         specialization: string | null;
         centerId: number | null;
+        createdAt: Date;
     }>;
     update(id: number, data: any, centerId: number): Promise<{
         id: number;
         login: string;
-        name: string | null;
         password: string;
-        createdAt: Date;
+        name: string | null;
         role: string;
         specialization: string | null;
         centerId: number | null;
+        createdAt: Date;
     }>;
     remove(id: number, centerId: number): Promise<{
         id: number;
         login: string;
-        name: string | null;
         password: string;
-        createdAt: Date;
+        name: string | null;
         role: string;
         specialization: string | null;
         centerId: number | null;
+        createdAt: Date;
     }>;
 }
