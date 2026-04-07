@@ -54,6 +54,8 @@ export declare class StudentsController {
         phone: string;
         address: string | null;
         dob: string | null;
+        telegramId: string | null;
+        updatedAt: Date;
     })[]>;
     create(req: any, body: any): Promise<{
         courses: {
@@ -84,6 +86,8 @@ export declare class StudentsController {
         phone: string;
         address: string | null;
         dob: string | null;
+        telegramId: string | null;
+        updatedAt: Date;
     }>;
     update(req: any, id: string, body: any): Promise<{
         courses: {
@@ -114,6 +118,8 @@ export declare class StudentsController {
         phone: string;
         address: string | null;
         dob: string | null;
+        telegramId: string | null;
+        updatedAt: Date;
     }>;
     remove(req: any, id: string): Promise<import("@prisma/client").Prisma.BatchPayload>;
 }

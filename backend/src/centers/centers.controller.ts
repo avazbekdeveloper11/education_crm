@@ -20,7 +20,8 @@ export class CentersController {
       data: {
         name: data.name,
         login: data.login,
-        password: data.pass
+        password: data.pass,
+        botToken: data.botToken
       }
     });
 
@@ -57,7 +58,8 @@ export class CentersController {
       data: {
         name: data.name,
         login: data.login,
-        password: data.pass
+        password: data.pass,
+        botToken: data.botToken
       }
     });
   }

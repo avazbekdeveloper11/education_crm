@@ -13,6 +13,8 @@ export declare class AttendanceController {
             phone: string;
             address: string | null;
             dob: string | null;
+            telegramId: string | null;
+            updatedAt: Date;
         };
     } & {
         id: number;

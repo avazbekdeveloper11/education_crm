@@ -14,6 +14,7 @@ export class PaymentsService {
         notes: data.notes,
         periodFrom: data.periodFrom,
         periodTo: data.periodTo,
+        paidUntil: data.periodTo,
         student: { connect: { id: data.studentId } },
         course: { connect: { id: data.courseId } },
         center: { connect: { id: centerId } },

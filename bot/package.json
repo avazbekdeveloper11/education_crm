@@ -13,11 +13,14 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "date-fns": "^4.1.0",
     "dotenv": "^17.4.1",
     "grammy": "^1.42.0"
   },
   "devDependencies": {
     "@types/node": "^25.5.2",
+    "prisma": "^6.19.3",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2"
   }

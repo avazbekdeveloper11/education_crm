@@ -13,16 +13,16 @@ export declare class LeadsService {
             name: string;
         } | null;
     } & {
-        name: string;
-        phone: string;
-        source: string | null;
-        status: string;
-        notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
         id: number;
+        name: string;
+        status: string;
+        createdAt: Date;
         centerId: number;
+        phone: string;
+        updatedAt: Date;
         courseId: number | null;
+        notes: string | null;
+        source: string | null;
     }>;
     getLeads(centerId: number, query?: {
         status?: string;
@@ -32,53 +32,55 @@ export declare class LeadsService {
             name: string;
         } | null;
     } & {
-        name: string;
-        phone: string;
-        source: string | null;
-        status: string;
-        notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
         id: number;
+        name: string;
+        status: string;
+        createdAt: Date;
         centerId: number;
+        phone: string;
+        updatedAt: Date;
         courseId: number | null;
+        notes: string | null;
+        source: string | null;
     })[]>;
     updateLead(id: number, centerId: number, data: any): Promise<{
         course: {
             name: string;
         } | null;
     } & {
-        name: string;
-        phone: string;
-        source: string | null;
-        status: string;
-        notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
         id: number;
+        name: string;
+        status: string;
+        createdAt: Date;
         centerId: number;
+        phone: string;
+        updatedAt: Date;
         courseId: number | null;
+        notes: string | null;
+        source: string | null;
     }>;
     deleteLead(id: number, centerId: number): Promise<{
-        name: string;
-        phone: string;
-        source: string | null;
-        status: string;
-        notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
         id: number;
+        name: string;
+        status: string;
+        createdAt: Date;
         centerId: number;
+        phone: string;
+        updatedAt: Date;
         courseId: number | null;
+        notes: string | null;
+        source: string | null;
     }>;
     convertToStudent(id: number, centerId: number): Promise<{
+        id: number;
         name: string;
-        phone: string;
         status: string;
         createdAt: Date;
-        id: number;
         centerId: number;
+        phone: string;
         address: string | null;
         dob: string | null;
+        telegramId: string | null;
+        updatedAt: Date;
     }>;
 }

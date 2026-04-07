@@ -11,127 +11,98 @@ export declare class PaymentsController {
         periodFrom?: string;
         periodTo?: string;
     }): Promise<{
-        course: {
-            id: number;
-            name: string;
-            createdAt: Date;
-            centerId: number;
-            description: string | null;
-            duration: number;
-            price: number;
-        };
-        student: {
-            groups: {
-                id: number;
-                name: string;
-                createdAt: Date;
-                centerId: number;
-                days: string | null;
-                teacher: string | null;
-                time: string | null;
-                courseId: number;
-            }[];
-        } & {
-            id: number;
-            name: string;
-            status: string;
-            createdAt: Date;
-            centerId: number;
-            phone: string;
-            address: string | null;
-            dob: string | null;
-        };
-    } & {
-        id: number;
-        createdAt: Date;
-        centerId: number;
-        courseId: number;
         amount: number;
         paymentDate: Date;
         paymentType: string;
         periodFrom: Date | null;
         periodTo: Date | null;
         notes: string | null;
+        createdAt: Date;
+        id: number;
         studentId: number;
+        courseId: number;
+        centerId: number;
     }>;
     findAll(req: any): Promise<({
         course: {
-            id: number;
-            name: string;
             createdAt: Date;
+            id: number;
             centerId: number;
+            name: string;
             description: string | null;
             duration: number;
             price: number;
         };
         student: {
             groups: {
-                id: number;
-                name: string;
                 createdAt: Date;
-                centerId: number;
-                days: string | null;
-                teacher: string | null;
-                time: string | null;
+                id: number;
                 courseId: number;
+                centerId: number;
+                name: string;
+                teacher: string | null;
+                days: string | null;
+                time: string | null;
             }[];
         } & {
-            id: number;
-            name: string;
-            status: string;
             createdAt: Date;
+            id: number;
             centerId: number;
+            telegramId: string | null;
+            name: string;
             phone: string;
             address: string | null;
             dob: string | null;
+            status: string;
+            updatedAt: Date;
         };
     } & {
-        id: number;
-        createdAt: Date;
-        centerId: number;
-        courseId: number;
         amount: number;
         paymentDate: Date;
         paymentType: string;
         periodFrom: Date | null;
         periodTo: Date | null;
         notes: string | null;
+        createdAt: Date;
+        id: number;
         studentId: number;
+        courseId: number;
+        centerId: number;
     })[]>;
     findByStudent(req: any, studentId: string): Promise<({
         course: {
-            id: number;
-            name: string;
             createdAt: Date;
+            id: number;
             centerId: number;
+            name: string;
             description: string | null;
             duration: number;
             price: number;
         };
     } & {
-        id: number;
-        createdAt: Date;
-        centerId: number;
-        courseId: number;
         amount: number;
         paymentDate: Date;
         paymentType: string;
         periodFrom: Date | null;
         periodTo: Date | null;
         notes: string | null;
+        createdAt: Date;
+        id: number;
         studentId: number;
+        courseId: number;
+        centerId: number;
     })[]>;
     remove(req: any, id: string): Promise<{
-        id: number;
-        createdAt: Date;
-        centerId: number;
-        courseId: number;
         amount: number;
         paymentDate: Date;
         paymentType: string;
         periodFrom: Date | null;
         periodTo: Date | null;
         notes: string | null;
+        createdAt: Date;
+        id: number;
         studentId: number;
+        courseId: number;
+        centerId: number;
     }>;
 }

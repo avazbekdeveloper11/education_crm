@@ -8,6 +8,7 @@ export declare class CentersController {
         name: string;
         password: string;
         status: string;
+        botToken: string | null;
         createdAt: Date;
     }[]>;
     create(data: any): Promise<{
@@ -16,6 +17,7 @@ export declare class CentersController {
         name: string;
         password: string;
         status: string;
+        botToken: string | null;
         createdAt: Date;
     }>;
     remove(id: string): Promise<{
@@ -24,6 +26,7 @@ export declare class CentersController {
         name: string;
         password: string;
         status: string;
+        botToken: string | null;
         createdAt: Date;
     }>;
     update(id: string, data: any): Promise<{
@@ -32,6 +35,7 @@ export declare class CentersController {
         name: string;
         password: string;
         status: string;
+        botToken: string | null;
         createdAt: Date;
     }>;
 }

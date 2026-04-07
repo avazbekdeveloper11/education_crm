@@ -12,6 +12,8 @@ export declare class GroupsService {
             phone: string;
             address: string | null;
             dob: string | null;
+            telegramId: string | null;
+            updatedAt: Date;
         }[];
         course: {
             id: number;

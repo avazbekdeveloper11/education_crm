@@ -7,69 +7,71 @@ export declare class LeadsController {
             name: string;
         } | null;
     } & {
-        name: string;
-        phone: string;
-        source: string | null;
-        status: string;
-        notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
         id: number;
+        name: string;
+        status: string;
+        createdAt: Date;
         centerId: number;
+        phone: string;
+        updatedAt: Date;
         courseId: number | null;
+        notes: string | null;
+        source: string | null;
     }>;
     findAll(req: any, query: any): Promise<({
         course: {
             name: string;
         } | null;
     } & {
-        name: string;
-        phone: string;
-        source: string | null;
-        status: string;
-        notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
         id: number;
+        name: string;
+        status: string;
+        createdAt: Date;
         centerId: number;
+        phone: string;
+        updatedAt: Date;
         courseId: number | null;
+        notes: string | null;
+        source: string | null;
     })[]>;
     update(id: string, req: any, body: any): Promise<{
         course: {
             name: string;
         } | null;
     } & {
-        name: string;
-        phone: string;
-        source: string | null;
-        status: string;
-        notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
         id: number;
+        name: string;
+        status: string;
+        createdAt: Date;
         centerId: number;
+        phone: string;
+        updatedAt: Date;
         courseId: number | null;
+        notes: string | null;
+        source: string | null;
     }>;
     remove(id: string, req: any): Promise<{
-        name: string;
-        phone: string;
-        source: string | null;
-        status: string;
-        notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
         id: number;
+        name: string;
+        status: string;
+        createdAt: Date;
         centerId: number;
+        phone: string;
+        updatedAt: Date;
         courseId: number | null;
+        notes: string | null;
+        source: string | null;
     }>;
     convert(id: string, req: any): Promise<{
+        id: number;
         name: string;
-        phone: string;
         status: string;
         createdAt: Date;
-        id: number;
         centerId: number;
+        phone: string;
         address: string | null;
         dob: string | null;
+        telegramId: string | null;
+        updatedAt: Date;
     }>;
 }
