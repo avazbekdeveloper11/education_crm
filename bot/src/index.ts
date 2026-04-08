@@ -1,226 +1,292 @@
-import { Bot, Keyboard } from "grammy";
+import { Bot, Keyboard, InlineKeyboard, Context, session } from "grammy";
 import { PrismaClient } from "@prisma/client";
 import * as dotenv from "dotenv";
 import { format } from "date-fns";
 import { uz } from "date-fns/locale";
+
+interface SessionData {
+  step: "idle" | "awaiting_parent_phone" | "awaiting_parent_contact";
+  studentId?: number;
+}
+type MyContext = Context & { session: SessionData };
 
 function formatDateUz(date: Date) {
   return format(new Date(date), "d-MMMM, yyyy", { locale: uz });
 }
 
 dotenv.config();
-
+console.log("Runtime DATABASE_URL:", process.env.DATABASE_URL);
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: process.env.DATABASE_URL!,
-    },
-  },
+      url: process.env.DATABASE_URL!
+    }
+  }
 });
 
 class BotManager {
-  private bots: Map<number, Bot> = new Map();
+  private bots: Map<number, Bot<MyContext>> = new Map();
 
   async startAll() {
-    console.log("DATABASE_URL:", process.env.DATABASE_URL);
-    console.log("Markazlar ro'yxati bazadan olinmoqda...");
+    console.log("BotManager: Markazlarni qidirish boshlandi...");
     try {
       const centers = await prisma.center.findMany({
-        where: {
-          botToken: { not: null, notIn: ["", "none", "token"] }
-        }
+        where: { botToken: { not: null, notIn: ["", "none", "token"] } }
       });
-      console.log(`Topilgan botlar soni: ${centers.length}`);
-      
+      console.log(`BotManager: ${centers.length} ta faol bot topildi.`);
       for (const center of centers) {
-        if (center.botToken) {
-          await this.startBot(center.id, center.name, center.botToken);
-        }
+        if (center.botToken) await this.startBot(center.id, center.name, center.botToken);
       }
-    } catch (err: any) {
-      console.error("Bazadan o'qishda xatolik:", err.message);
-      if (err.message.includes("does not exist")) {
-        console.log("MASLAHAT: 'npx prisma generate' buyrug'ini bot papkasida qayta ishlating.");
-      }
-    }
-    
-    // Periodically check for new centers every 1 minute
+    } catch (err: any) { console.error("Startup error:", err.message); }
     setInterval(() => this.checkNewBots(), 60000);
   }
 
   async startBot(centerId: number, centerName: string, token: string) {
     if (this.bots.has(centerId)) return;
-
+    console.log(`[${centerName}] boti ishga tushirilmoqda...`);
     try {
-      const bot = new Bot(token);
+      const bot = new Bot<MyContext>(token);
+      bot.use(session({ initial: (): SessionData => ({ step: "idle" }) }));
 
-      bot.command("start", (ctx) => {
-        const keyboard = new Keyboard()
-          .requestContact("Telefon raqamni yuborish")
-          .resized()
-          .oneTime();
-
-        ctx.reply(
-          `Assalomu alaykum! ${centerName} botiga xush kelibsiz.\n\n` +
-          `Siz ushbu o'quv markaz o'quvchisimisiz? Iltimos, pastdagi tugma orqali telefon raqamingizni yuboring va botdan to'liq foydalaning.`,
-          { reply_markup: keyboard }
-        );
-      });
-
-      // Handle phone contact sharing
-      bot.on("message:contact", async (ctx) => {
-        const phone = ctx.message.contact.phone_number.replace("+", "");
-        const telegramId = ctx.from?.id.toString();
-
-        console.log(`[${centerName}] Tekshirilmoqda: ${phone}`);
-
-        try {
-          // Normalize phone for DB matching (remove leading/trailing spaces or other chars if any)
-          // We assume DB has clean 998... numbers without +
-          const student = await prisma.student.findFirst({
-            where: {
-              centerId: centerId,
-              OR: [
-                { phone: phone },
-                { phone: phone.startsWith("998") ? phone.slice(3) : phone }
-              ]
-            }
-          });
-
-          if (student) {
-            await (prisma.student as any).update({
-              where: { id: student.id },
-              data: { telegramId: telegramId }
-            });
-
-            const mainMenu = new Keyboard()
-              .text("💰 To'lovlar")
-              .text("📅 Davomat")
-              .row()
-              .text("ℹ️ Ma'lumotlarim")
-              .resized();
-
-            await ctx.reply(
-              `Tabriklaymiz, ${student.name}! ✅\n` +
-              `Siz muvaffaqiyatli ro'yxatdan o'tdingiz. Pastdagi menyu orqali darslaringizni kuzatishingiz mumkin.`,
-              { reply_markup: mainMenu }
-            );
-          } else {
-            await ctx.reply(
-              "Kechirasiz, bu raqam bizning bazamizda topilmadi. ❌\n" +
-              "Iltimos, o'quv markaz admini bilan bog'laning."
-            );
-          }
-        } catch (err: any) {
-          console.error("Verification error:", err.message);
-          ctx.reply("Ro'yxatdan o'tishda texnik xatolik yuz berdi.");
-        }
-      });
-
-      bot.on("message", async (ctx) => {
-        const text = ctx.message.text;
-        const telegramId = ctx.from?.id.toString();
-
-        // Find the student by telegramId
-        const student = await (prisma.student as any).findUnique({
-          where: { telegramId: telegramId },
+      async function showMonthAttendance(ctx: MyContext, year: number, month: number, telegramId: string) {
+        const student = await (prisma.student as any).findFirst({
+          where: { OR: [{ telegramId: telegramId }, { parentTelegramId: telegramId }] },
           include: { 
-            payments: { orderBy: { paymentDate: 'desc' }, take: 1 },
-            attendance: { orderBy: { date: 'desc' }, take: 5, include: { group: true } }
+            attendance: {
+              where: { date: { gte: new Date(year, month, 1), lt: new Date(year, month + 1, 1) } },
+              orderBy: { date: 'desc' },
+              include: { group: true }
+            }
           }
         });
+        if (!student) return;
+        const mLabel = format(new Date(year, month, 1), "MMMM", { locale: uz });
+        if (student.attendance.length === 0) {
+          await ctx.reply(`<b>${mLabel}</b> uchun davomat topilmadi.`, { parse_mode: "HTML" });
+        } else {
+          let msg = "📊 <b>" + mLabel.toUpperCase() + " DAVOMATI</b>\n\n";
+          student.attendance.forEach((a: any) => {
+            msg += (a.status.toUpperCase()==='PRESENT'?'✅':'❌') + " <b>" + formatDateUz(a.date) + "</b>\n📖 " + a.group.name + "\n___________________\n\n";
+          });
+          await ctx.reply(msg, { parse_mode: "HTML" });
+        }
+      }
 
-        if (!student) {
-          return ctx.reply("Iltimos, avval ro'yxatdan o'tish uchun telefon raqamingizni yuboring.");
+      bot.command("start", async (ctx) => {
+        const payload = ctx.match;
+        if (payload && payload.startsWith("parent_")) {
+          const studentId = parseInt(payload.split("_")[1]!);
+          const student = await (prisma.student as any).findUnique({ where: { id: studentId } });
+          if (student) {
+            ctx.session.step = "awaiting_parent_contact";
+            ctx.session.studentId = studentId;
+            return ctx.reply("Assalomu alaykum! Siz <b>" + student.name + "</b>ning ota-onasi sifatida ro'yxatdan o'tmoqchisiz.\n\nTasdiqlash uchun pastdagi tugma orqali telefon raqamingizni yuboring:", {
+              parse_mode: "HTML",
+              reply_markup: new Keyboard().requestContact("📲 Raqamni tasdiqlash").resized().oneTime()
+            });
+          }
+        }
+        ctx.session.step = "idle";
+        try {
+          await ctx.reply("Assalomu alaykum! <b>" + centerName + "</b> botiga xush kelibsiz.\n\nBotdan foydalanish uchun telefon raqamingizni yuboring.", {
+            parse_mode: "HTML",
+            reply_markup: new Keyboard().requestContact("📲 Raqamni yuborish").resized().oneTime()
+          });
+        } catch (e) {
+          console.error("Start xabarini yuborishda xato:", e);
+        }
+      });
+
+      bot.on("message:contact", async (ctx) => {
+        const phone = ctx.message.contact.phone_number.replace("+", "");
+
+        if (ctx.session.step === "awaiting_parent_contact" && ctx.session.studentId) {
+          const student = await (prisma.student as any).findUnique({ where: { id: ctx.session.studentId } });
+          if (!student) return;
+
+          const expectedPhone = student.parentPhone ? student.parentPhone.replace("+", "") : "";
+          if (phone === expectedPhone || phone.endsWith(expectedPhone) || expectedPhone.endsWith(phone)) {
+            await (prisma.student as any).update({
+              where: { id: student.id },
+              data: { parentTelegramId: ctx.from!.id.toString() }
+            });
+            await ctx.reply("✅ Tasdiqlandi! Siz <b>" + student.name + "</b>ning ota-onasi sifatida bog'landingiz. 👨‍👩‍👧‍👦", {
+              parse_mode: "HTML",
+              reply_markup: new Keyboard()
+                .text("💰 To'lovlar").text("📅 Davomat").row()
+                .text("📚 Kurslarim").text("ℹ️ Ma'lumotlarim")
+                .resized()
+            });
+            if (student.telegramId) {
+              try {
+                await bot.api.sendMessage(student.telegramId, "🎉 <b>Xushxabar!</b> Ota-onangiz botni aktivlashtirdi. Endi botdan to'liq foydalanishingiz mumkin!", {
+                  parse_mode: "HTML",
+                  reply_markup: new Keyboard()
+                    .text("💰 To'lovlar").text("📅 Davomat").row()
+                    .text("📚 Kurslarim").text("ℹ️ Ma'lumotlarim")
+                    .resized()
+                });
+              } catch (e) {
+                console.log("Talabaga xabar yuborib bo'lmadi:", student.telegramId);
+              }
+            }
+            ctx.session.step = "idle";
+          } else {
+            await ctx.reply("❌ Xatolik! Yuborilgan raqam o'quvchi tomonidan qoldirilgan ota-ona raqamiga mos kelmadi. Iltimos, o'quvchi kiritgan raqamdan foydalaning.");
+          }
+          return;
         }
 
-        if (text === "💰 To'lovlar") {
-          if (student.payments.length === 0) {
-            return ctx.reply("Hozircha hech qanday to'lov ma'lumotlari topilmadi. 💸");
+        const student = await (prisma.student as any).findFirst({ where: { phone: phone, centerId: centerId } });
+        if (!student) return ctx.reply("Kechirasiz, bu raqam tizimda topilmadi. 🧐");
+
+        await (prisma.student as any).update({ where: { id: student.id }, data: { telegramId: ctx.from!.id.toString() } });
+        
+        // Agar ota-ona allaqachon bog'langan bo'lsa, uning bloklanmaganini tekshiramiz
+        if (student.parentTelegramId) {
+          try {
+            // Ota-ona botni bloklamaganini tekshirish (typing yuborib ko'ramiz)
+            await bot.api.sendChatAction(student.parentTelegramId, "typing");
+            
+            ctx.session.step = "idle";
+            return ctx.reply("✅ Hush kelibsiz! Raqamingiz va ota-onangiz hisobi allaqachon tasdiqlangan.", {
+              reply_markup: new Keyboard()
+                .text("💰 To'lovlar").text("📅 Davomat").row()
+                .text("📚 Kurslarim").text("ℹ️ Ma'lumotlarim")
+                .resized()
+            });
+          } catch (err: any) {
+            console.log("Ota-ona botni bloklagan yoki ID noto'g'ri:", err.message);
+            // Agar bloklangan bo'lsa, davom etamiz (yangi raqam so'raymiz)
           }
+        }
 
-          let msg = `💳 <b>OXIRGI TO'LOV MA'LUMOTI</b>\n`;
-          msg += `___________________\n\n`;
+        ctx.session.step = "awaiting_parent_phone";
+        ctx.session.studentId = student.id;
 
-          const p = student.payments[0];
-          const date = formatDateUz(p.paymentDate);
-          const until = (p.paidUntil || p.periodTo) ? formatDateUz(p.paidUntil || p.periodTo) : "Noma'lum";
-          
-          msg += `💰 To'lov: <b>${p.amount.toLocaleString()}</b> so'm\n`;
-          msg += `📅 Sana: ${date}\n`;
-          msg += `⌛️ Muddat: <b>${until} gacha</b>\n`;
-          msg += `___________________\n\n`;
-          
-          await ctx.reply(msg, { parse_mode: "HTML" });
-        } 
-        else if (text === "📅 Davomat") {
-          if (student.attendance.length === 0) {
-            return ctx.reply("Sizning davomat tarixingiz hali mavjud emas. 📅");
-          }
+        try {
+          await ctx.reply("✅ Raqamingiz tasdiqlandi!\n\nEndi botni aktivlashtirish uchun <b>ota-onangizning telefon raqamini</b> yozib yuboring (masalan: 998901234567):", { parse_mode: "HTML" });
+        } catch (e) {
+          console.error("Kontakt tasdiqlash xabarida xato:", e);
+        }
+      });
 
-          let msg = `📊 <b>DAVOMAT KO'RSATKICHLARI</b>\n`;
-          msg += `___________________\n\n`;
+      bot.on("message:text", async (ctx) => {
+        if (ctx.session.step === "awaiting_parent_phone" && ctx.session.studentId) {
+          const pPhone = ctx.message.text.replace("+", "").trim();
+          if (pPhone.length < 9) return ctx.reply("Iltimos, raqamni to'liq formatda yozing.");
 
-          student.attendance.forEach((a: any) => {
-            const date = formatDateUz(a.date);
-            const isPresent = a.status.toUpperCase() === 'PRESENT';
-            const icon = isPresent ? "✅" : "❌";
-            const statusText = isPresent ? "Darsda qatnashgan" : "Darsda qatnashmagan";
-
-            msg += `${icon} <b>${date}</b>\n`;
-            msg += `📖 Guruh: ${a.group.name}\n`;
-            msg += `📉 Holat: <b>${statusText}</b>\n`;
-            msg += `___________________\n\n`;
+          await (prisma.student as any).update({
+            where: { id: ctx.session.studentId },
+            data: { parentPhone: pPhone }
           });
 
-          await ctx.reply(msg, { parse_mode: "HTML" });
+          const me = await bot.api.getMe();
+          const link = "https://t.me/" + me.username + "?start=parent_" + ctx.session.studentId;
+          
+          await ctx.reply("✅ Ota-onangiz raqami saqlandi!\n\n⚠️ <b>DIQQAT:</b> Endi ushbu havolani ota-onangizga yuboring. Ular botga kirib /start bosishlari shart:\n\n" + link, { parse_mode: "HTML" });
+          ctx.session.step = "idle";
+          return;
         }
-        else if (text === "ℹ️ Ma'lumotlarim") {
-           await ctx.reply(
-             `👤 <b>TALABA PROFILI</b>\n` +
-             `___________________\n\n` +
-             `▫️ <b>Ism:</b> ${student.name}\n` +
-             `▫️ <b>Tel:</b> +${student.phone}\n` +
-             `▫️ <b>Markaz:</b> ${centerName}\n\n` +
-             `✅ <b>Hozirgi holat:</b> ${student.status === 'Active' ? 'Faol o\'quvchi' : 'Nofaol'}`,
-             { parse_mode: "HTML" }
-           );
+
+        const text = ctx.message.text;
+        const student = await (prisma.student as any).findFirst({
+          where: { OR: [{ telegramId: ctx.from?.id.toString() }, { parentTelegramId: ctx.from?.id.toString() }] },
+          include: { 
+            courses: true,
+            payments: { orderBy: { paymentDate: 'desc' }, include: { course: true } }
+          }
+        });
+        if (!student) return;
+        if (!student.parentTelegramId) {
+          const me = await bot.api.getMe();
+          const link = "https://t.me/" + me.username + "?start=parent_" + student.id;
+          return ctx.reply("⚠️ Bot hali aktiv emas. Ota-onangiz ushbu linkni bosishi shart:\n\n" + link);
         }
-        else {
-          ctx.reply("Iltimos, menyudagi tugmalardan foydalaning.");
+
+        const kb = new Keyboard()
+          .text("💰 To'lovlar").text("📅 Davomat").row()
+          .text("📚 Kurslarim").text("ℹ️ Ma'lumotlarim")
+          .resized();
+
+        if (text === "💰 To'lovlar") {
+          if (!student.payments.length) return ctx.reply("Sizda hali to'lovlar mavjud emas. 💳");
+          
+          let msg = "💳 <b>SIZNING TO'LOVLARINGIZ</b>\n\n";
+          
+          // Har bir kurs uchun oxirgi to'lovni topish
+          student.courses.forEach((course: any) => {
+            const lastPayment = student.payments.find((p: any) => p.courseId === course.id);
+            msg += "📚 <b>" + course.name + "</b>\n";
+            if (lastPayment) {
+              msg += "💰 Summa: <b>" + lastPayment.amount.toLocaleString() + "</b> so'm\n";
+              msg += "📅 Sana: " + formatDateUz(lastPayment.paymentDate);
+              if (lastPayment.paidUntil) {
+                msg += "\n✅ To'langan: <b>" + formatDateUz(lastPayment.paidUntil) + "</b> gacha";
+              }
+            } else {
+              msg += "❌ Ushbu kurs uchun to'lov topilmadi.";
+            }
+            msg += "\n___________________\n\n";
+          });
+
+          await ctx.reply(msg, { parse_mode: "HTML", reply_markup: kb });
+        } else if (text === "📅 Davomat") {
+          const startDate = new Date(student.createdAt);
+          const endDate = new Date();
+          const months: any[] = [];
+          const tempDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+          while (tempDate <= endDate) {
+            months.push({ label: format(tempDate, "MMMM", { locale: uz }), year: tempDate.getFullYear(), month: tempDate.getMonth() });
+            tempDate.setMonth(tempDate.getMonth() + 1);
+          }
+
+          if (months.length === 1) {
+            const m = months[0];
+            await showMonthAttendance(ctx, m.year, m.month, ctx.from!.id.toString());
+          } else {
+            const ikb = new InlineKeyboard();
+            months.forEach((m, i) => { ikb.text(m.label, "attn_" + m.year + "_" + m.month); if((i+1)%3===0) ikb.row(); });
+            await ctx.reply("Qaysi oy uchun davomatni ko'rmoqchisiz?", { reply_markup: ikb });
+          }
+        } else if (text === "📚 Kurslarim") {
+          if (!student.courses.length) return ctx.reply("Siz hali hech qanday kursga a'zo emassiz. 📚");
+          
+          let msg = "📚 <b>SIZNING KURSLARINGIZ</b>\n\n";
+          student.courses.forEach((c: any, i: number) => {
+            msg += (i + 1) + ". <b>" + c.name + "</b>\n";
+            msg += "💰 Narxi: " + c.price.toLocaleString() + " so'm\n";
+            msg += "⌛️ Davomiyligi: " + c.duration + " oy\n";
+            msg += "___________________\n\n";
+          });
+          await ctx.reply(msg, { parse_mode: "HTML", reply_markup: kb });
+        } else if (text === "ℹ️ Ma'lumotlarim") {
+          await ctx.reply("👤 <b>PROFIL</b>\n\nTalaba: " + student.name + "\nMarkaz: " + centerName + "\nOta-ona tel: " + (student.parentPhone || "Kiritilmagan"), { parse_mode: "HTML", reply_markup: kb });
         }
       });
 
-      // Start the bot in long polling mode
-      bot.start({
-        onStart: (info) => console.log(`[${centerName}] boti ishga tushdi: @${info.username}`),
-      }).catch(err => {
-        console.error(`[${centerName}] botini ishga tushirishda xato:`, err.message);
+      bot.on("callback_query:data", async (ctx) => {
+        if (!ctx.callbackQuery.data.startsWith("attn_")) return;
+        const p = ctx.callbackQuery.data.split("_");
+        await showMonthAttendance(ctx, parseInt(p[1]!), parseInt(p[2]!), ctx.from.id.toString());
+        await ctx.answerCallbackQuery();
       });
 
+      bot.catch((err) => {
+        console.error(`Error in bot ${centerName}:`, err.message);
+      });
+
+      bot.start({ onStart: (i) => console.log("@" + i.username + " OK") });
       this.bots.set(centerId, bot);
-    } catch (err: any) {
-      console.error(`[${centerName}] tokenni ishga tushirib bo'lmadi:`, err.message);
-    }
+    } catch (e: any) { console.error(e.message); }
   }
 
   async checkNewBots() {
     const centers = await prisma.center.findMany({
-      where: {
-        botToken: { not: null, notIn: ["", "none", "token"] },
-        id: { notIn: Array.from(this.bots.keys()) }
-      }
+      where: { botToken: { not: null }, id: { notIn: Array.from(this.bots.keys()) } }
     });
-
-    for (const center of centers) {
-       if(center.botToken) {
-           await this.startBot(center.id, center.name, center.botToken);
-       }
-    }
+    for (const c of centers) if(c.botToken) await this.startBot(c.id, c.name, c.botToken);
   }
 }
 
-const manager = new BotManager();
-manager.startAll().catch(err => {
-  console.error("BotManager startup error:", err);
-});
+new BotManager().startAll();

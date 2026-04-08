@@ -73,6 +73,8 @@ model Student {
   dob       String?
   status    String    @default("Active")
   telegramId String?   @unique
+  parentTelegramId String? @unique
+  parentPhone String?
   centerId  Int
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
@@ -90,6 +92,7 @@ model Payment {
   courseId    Int
   centerId    Int
   paymentDate DateTime @default(now())
+  paidUntil   DateTime?
   paymentType String   @default("CASH")
   periodFrom  DateTime?
   periodTo    DateTime?
