@@ -72,6 +72,8 @@ export declare class LeadsController {
         address: string | null;
         dob: string | null;
         telegramId: string | null;
+        parentTelegramId: string | null;
+        parentPhone: string | null;
         updatedAt: Date;
     }>;
 }

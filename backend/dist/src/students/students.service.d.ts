@@ -38,12 +38,13 @@ export declare class StudentsService {
             centerId: number;
             courseId: number;
             amount: number;
+            studentId: number;
             paymentDate: Date;
+            paidUntil: Date | null;
             paymentType: string;
             periodFrom: Date | null;
             periodTo: Date | null;
             notes: string | null;
-            studentId: number;
         }[];
     } & {
         id: number;
@@ -55,6 +56,8 @@ export declare class StudentsService {
         address: string | null;
         dob: string | null;
         telegramId: string | null;
+        parentTelegramId: string | null;
+        parentPhone: string | null;
         updatedAt: Date;
     })[]>;
     create(data: any, centerId: number): Promise<{
@@ -87,6 +90,8 @@ export declare class StudentsService {
         address: string | null;
         dob: string | null;
         telegramId: string | null;
+        parentTelegramId: string | null;
+        parentPhone: string | null;
         updatedAt: Date;
     }>;
     update(id: number, data: any, centerId: number): Promise<{
@@ -119,6 +124,8 @@ export declare class StudentsService {
         address: string | null;
         dob: string | null;
         telegramId: string | null;
+        parentTelegramId: string | null;
+        parentPhone: string | null;
         updatedAt: Date;
     }>;
     remove(id: number, centerId: number): Promise<import("@prisma/client").Prisma.BatchPayload>;

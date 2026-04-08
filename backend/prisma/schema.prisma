@@ -33,6 +33,7 @@ model Center {
   students  Student[]
   leads     Lead[]
   attendance Attendance[]
+  absenceRequests AbsenceRequest[]
 }
 
 model Course {
@@ -73,6 +74,8 @@ model Student {
   dob       String?
   status    String    @default("Active")
   telegramId String?   @unique
+  parentTelegramId String? @unique
+  parentPhone String?
   centerId  Int
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
@@ -80,6 +83,7 @@ model Student {
   courses   Course[]
   groups    Group[]
   attendance Attendance[]
+  absenceRequests AbsenceRequest[]
   center    Center    @relation(fields: [centerId], references: [id])
 }
 
@@ -90,6 +94,7 @@ model Payment {
   courseId    Int
   centerId    Int
   paymentDate DateTime @default(now())
+  paidUntil   DateTime?
   paymentType String   @default("CASH")
   periodFrom  DateTime?
   periodTo    DateTime?
@@ -128,4 +133,16 @@ model Lead {
 
   center    Center   @relation(fields: [centerId], references: [id])
   course    Course?  @relation(fields: [courseId], references: [id])
+}
+
+model AbsenceRequest {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  centerId  Int
+  date      DateTime @default(now())
+  reason    String?
+  createdAt DateTime @default(now())
+  
+  student   Student  @relation(fields: [studentId], references: [id])
+  center    Center   @relation(fields: [centerId], references: [id])
 }

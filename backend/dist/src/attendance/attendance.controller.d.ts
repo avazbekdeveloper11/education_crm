@@ -14,6 +14,8 @@ export declare class AttendanceController {
             address: string | null;
             dob: string | null;
             telegramId: string | null;
+            parentTelegramId: string | null;
+            parentPhone: string | null;
             updatedAt: Date;
         };
     } & {

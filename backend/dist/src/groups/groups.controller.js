@@ -30,6 +30,9 @@ let GroupsController = class GroupsController {
     async update(req, id, body) {
         return this.groupsService.update(parseInt(id), body, req.user.centerId);
     }
+    async findOne(req, id) {
+        return this.groupsService.findOne(parseInt(id), req.user.centerId);
+    }
     async remove(req, id) {
         return this.groupsService.remove(parseInt(id), req.user.centerId);
     }
@@ -59,6 +62,14 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", Promise)
 ], GroupsController.prototype, "update", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], GroupsController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Req)()),

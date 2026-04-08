@@ -66,7 +66,9 @@ class BotManager {
         } else {
           let msg = "📊 <b>" + mLabel.toUpperCase() + " DAVOMATI</b>\n\n";
           student.attendance.forEach((a: any) => {
-            msg += (a.status.toUpperCase()==='PRESENT'?'✅':'❌') + " <b>" + formatDateUz(a.date) + "</b>\n📖 " + a.group.name + "\n___________________\n\n";
+            const statusEmoji = a.status.toUpperCase() === 'PRESENT' ? '✅' : (a.status.toUpperCase() === 'EXCUSED' ? '🟡' : '❌');
+            const statusText = a.status.toUpperCase() === 'PRESENT' ? 'Keldi' : (a.status.toUpperCase() === 'EXCUSED' ? 'Sababli' : 'Kelmagan');
+            msg += statusEmoji + " <b>" + formatDateUz(a.date) + "</b> (" + statusText + ")\n📖 " + a.group.name + "\n___________________\n\n";
           });
           await ctx.reply(msg, { parse_mode: "HTML" });
         }
@@ -206,7 +208,8 @@ class BotManager {
 
         const kb = new Keyboard()
           .text("💰 To'lovlar").text("📅 Davomat").row()
-          .text("📚 Kurslarim").text("ℹ️ Ma'lumotlarim")
+          .text("📚 Kurslarim").text("ℹ️ Ma'lumotlarim").row()
+          .text("✍️ Kelolmaslik")
           .resized();
 
         if (text === "💰 To'lovlar") {
@@ -262,6 +265,29 @@ class BotManager {
           await ctx.reply(msg, { parse_mode: "HTML", reply_markup: kb });
         } else if (text === "ℹ️ Ma'lumotlarim") {
           await ctx.reply("👤 <b>PROFIL</b>\n\nTalaba: " + student.name + "\nMarkaz: " + centerName + "\nOta-ona tel: " + (student.parentPhone || "Kiritilmagan"), { parse_mode: "HTML", reply_markup: kb });
+        } else if (text === "✍️ Kelolmaslik") {
+          const today = new Date();
+          const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+          const end = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+
+          const existing = await (prisma as any).absenceRequest.findFirst({
+            where: { studentId: student.id, date: { gte: start, lt: end } }
+          });
+
+          if (existing) {
+            return ctx.reply("Bugun uchun allaqachon darsda qatnasholmaslik haqida ogohlantirish yuborgansiz. ✔️");
+          }
+
+          await (prisma as any).absenceRequest.create({
+            data: {
+              studentId: student.id,
+              centerId: centerId,
+              date: start, // Bugungi sana
+              reason: "O'quvchi/Ota-ona bot orqali bildirdi"
+            }
+          });
+
+          await ctx.reply("✅ Bugungi dars uchun ogohlantirish saqlandi. Muallim davomat olayotganida bu haqda xabar ko'radi. ✍️", { reply_markup: kb });
         }
       });
 

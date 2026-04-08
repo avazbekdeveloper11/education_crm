@@ -3,11 +3,11 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class PaymentsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(centerId: number, data: { studentId: number, courseId: number, amount: number, paymentType?: string, notes?: string, periodFrom?: Date, periodTo?: Date }) {
     // @ts-ignore
-    return this.prisma.payment.create({
+    return (this.prisma.payment as any).create({
       data: {
         amount: data.amount,
         paymentType: data.paymentType || 'CASH',

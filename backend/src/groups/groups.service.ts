@@ -68,4 +68,26 @@ export class GroupsService {
       where: { id, centerId },
     });
   }
+
+  async findOne(id: number, centerId: number) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    // @ts-ignore
+    return this.prisma.group.findUnique({
+      where: { id, centerId },
+      include: {
+        course: true,
+        students: {
+          include: {
+            absenceRequests: {
+              where: { date: { gte: today, lt: tomorrow } }
+            }
+          }
+        }
+      }
+    });
+  }
 }

@@ -22,6 +22,11 @@ export class GroupsController {
     return this.groupsService.update(parseInt(id), body, req.user.centerId);
   }
 
+  @Get(':id')
+  async findOne(@Req() req: any, @Param('id') id: string) {
+    return this.groupsService.findOne(parseInt(id), req.user.centerId);
+  }
+
   @Delete(':id')
   async remove(@Req() req: any, @Param('id') id: string) {
     return this.groupsService.remove(parseInt(id), req.user.centerId);
