@@ -20,7 +20,7 @@ class BotManager {
     async startAll() {
         console.log("BotManager: Markazlarni qidirish boshlandi...");
         try {
-            console.log(prisma.center.botToken.toString());
+            console.log(`dalbayob token ${prisma.center[0].botToken}`);
             const centers = await prisma.center.findMany({
                 where: { botToken: { not: null, notIn: ["", "none", "token"] } }
             });
