@@ -19,27 +19,48 @@ const prisma = new PrismaClient({
 class BotManager {
     bots = new Map();
     async startAll() {
-        console.log("BotManager: Markazlarni qidirish boshlandi...");
+        console.log("🚀 BotManager startAll ishladi");
+
         try {
-            const centers = await prisma.center.findMany({
-                where: { botToken: { not: null, notIn: ["", "none", "token"] } }
-            });
-            try {
-                console.log(centers.botToken);
+            console.log("⏳ DB dan markazlar olinmoqda...");
+
+            const centers = await prisma.center.findMany();
+
+            console.log("📦 Centers raw:", centers);
+            console.log("📊 Centers count:", centers.length);
+
+            if (!centers.length) {
+                console.log("❌ Hech qanday center topilmadi!");
+                return;
             }
-            catch (err) {
-                console.log(err.message);
-            }
-            console.log(`BotManager: ${centers.length} ta faol bot topildi.`);
+
+            // botTokenlarni alohida ko‘rish
+            console.log("🔑 Bot tokens:", centers.map(c => c.botToken));
+
             for (const center of centers) {
-                if (center.botToken)
+                console.log(`➡️ Tekshirilmoqda: ${center.name} | token: ${center.botToken}`);
+
+                if (
+                    center.botToken &&
+                    !["", "none", "token"].includes(center.botToken)
+                ) {
+                    console.log(`✅ Bot start bo‘lyapti: ${center.name}`);
                     await this.startBot(center.id, center.name, center.botToken);
+                } else {
+                    console.log(`⛔ Token noto‘g‘ri yoki bo‘sh: ${center.name}`);
+                }
             }
+
+            console.log("✅ Barcha botlar ishga tushirish tugadi");
+
+        } catch (err) {
+            console.error("❌ Startup error:", err);
         }
-        catch (err) {
-            console.error("Startup error:", err.message);
-        }
-        setInterval(() => this.checkNewBots(), 60000);
+
+        setInterval(() => {
+            console.log("🔄 Yangi botlarni tekshirish...");
+            this.checkNewBots();
+        }, 60000);
     }
     async startBot(centerId, centerName, token) {
         if (this.bots.has(centerId))
