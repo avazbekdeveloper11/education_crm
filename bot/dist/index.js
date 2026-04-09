@@ -15,15 +15,21 @@ const prisma = new PrismaClient({
         }
     }
 });
+
 class BotManager {
     bots = new Map();
     async startAll() {
         console.log("BotManager: Markazlarni qidirish boshlandi...");
         try {
-            console.log(`dalbayob token ${prisma.center[0].botToken}`);
             const centers = await prisma.center.findMany({
                 where: { botToken: { not: null, notIn: ["", "none", "token"] } }
             });
+            try {
+                console.log(centers.botToken);
+            }
+            catch (err) {
+                console.log(err.message);
+            }
             console.log(`BotManager: ${centers.length} ta faol bot topildi.`);
             for (const center of centers) {
                 if (center.botToken)
@@ -285,8 +291,10 @@ class BotManager {
                     }
                     else {
                         const ikb = new InlineKeyboard();
-                        months.forEach((m, i) => { ikb.text(m.label, "attn_" + m.year + "_" + m.month); if ((i + 1) % 3 === 0)
-                            ikb.row(); });
+                        months.forEach((m, i) => {
+                            ikb.text(m.label, "attn_" + m.year + "_" + m.month); if ((i + 1) % 3 === 0)
+                                ikb.row();
+                        });
                         await ctx.reply("Qaysi oy uchun davomatni ko'rmoqchisiz?", { reply_markup: ikb });
                     }
                 }
