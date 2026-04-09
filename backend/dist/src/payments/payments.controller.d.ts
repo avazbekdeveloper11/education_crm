@@ -16,10 +16,10 @@ export declare class PaymentsController {
             id: number;
             name: string;
             createdAt: Date;
-            centerId: number;
             description: string | null;
             duration: number;
             price: number;
+            centerId: number;
         };
         student: {
             groups: {
@@ -27,8 +27,8 @@ export declare class PaymentsController {
                 name: string;
                 createdAt: Date;
                 centerId: number;
-                days: string | null;
                 teacher: string | null;
+                days: string | null;
                 time: string | null;
                 courseId: number;
             }[];
@@ -52,23 +52,23 @@ export declare class PaymentsController {
         centerId: number;
         courseId: number;
         amount: number;
-        studentId: number;
         paymentDate: Date;
         paidUntil: Date | null;
         paymentType: string;
         periodFrom: Date | null;
         periodTo: Date | null;
         notes: string | null;
+        studentId: number;
     })[]>;
     findByStudent(req: any, studentId: string): Promise<({
         course: {
             id: number;
             name: string;
             createdAt: Date;
-            centerId: number;
             description: string | null;
             duration: number;
             price: number;
+            centerId: number;
         };
     } & {
         id: number;
@@ -76,13 +76,13 @@ export declare class PaymentsController {
         centerId: number;
         courseId: number;
         amount: number;
-        studentId: number;
         paymentDate: Date;
         paidUntil: Date | null;
         paymentType: string;
         periodFrom: Date | null;
         periodTo: Date | null;
         notes: string | null;
+        studentId: number;
     })[]>;
     remove(req: any, id: string): Promise<{
         id: number;
@@ -90,12 +90,12 @@ export declare class PaymentsController {
         centerId: number;
         courseId: number;
         amount: number;
-        studentId: number;
         paymentDate: Date;
         paidUntil: Date | null;
         paymentType: string;
         periodFrom: Date | null;
         periodTo: Date | null;
         notes: string | null;
+        studentId: number;
     }>;
 }

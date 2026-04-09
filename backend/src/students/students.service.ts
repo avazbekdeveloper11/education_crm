@@ -27,6 +27,7 @@ export class StudentsService {
         address: data.address || '',
         dob: data.dob || '',
         status: data.status || 'Active',
+        parentPhone: data.parentPhone || '',
         centerId: centerId,
         courses: data.courseIds ? {
           connect: data.courseIds.split(',').map((id: string) => ({ id: parseInt(id) }))
@@ -56,6 +57,7 @@ export class StudentsService {
         address: data.address,
         dob: data.dob,
         status: data.status,
+        parentPhone: data.parentPhone,
         courses: data.courseIds ? {
           set: data.courseIds.split(',').map((id: string) => ({ id: parseInt(id) }))
         } : undefined,
@@ -72,5 +74,23 @@ export class StudentsService {
     return this.prisma.student.deleteMany({
       where: { id, centerId },
     });
+  }
+
+  async findOne(id: number, centerId: number) {
+    // @ts-ignore
+    const student = await this.prisma.student.findUnique({
+      where: { id },
+      include: {
+        courses: true,
+        groups: { include: { course: true } },
+        payments: { orderBy: { createdAt: 'desc' } },
+        attendance: { orderBy: { date: 'desc' }, take: 20 }
+      }
+    });
+
+    if (!student || (student as any).centerId !== centerId) {
+       return null;
+    }
+    return student;
   }
 }

@@ -12,9 +12,9 @@ export declare class LeadsController {
         status: string;
         createdAt: Date;
         centerId: number;
+        courseId: number | null;
         phone: string;
         updatedAt: Date;
-        courseId: number | null;
         notes: string | null;
         source: string | null;
     }>;
@@ -28,9 +28,9 @@ export declare class LeadsController {
         status: string;
         createdAt: Date;
         centerId: number;
+        courseId: number | null;
         phone: string;
         updatedAt: Date;
-        courseId: number | null;
         notes: string | null;
         source: string | null;
     })[]>;
@@ -44,9 +44,9 @@ export declare class LeadsController {
         status: string;
         createdAt: Date;
         centerId: number;
+        courseId: number | null;
         phone: string;
         updatedAt: Date;
-        courseId: number | null;
         notes: string | null;
         source: string | null;
     }>;
@@ -56,9 +56,9 @@ export declare class LeadsController {
         status: string;
         createdAt: Date;
         centerId: number;
+        courseId: number | null;
         phone: string;
         updatedAt: Date;
-        courseId: number | null;
         notes: string | null;
         source: string | null;
     }>;

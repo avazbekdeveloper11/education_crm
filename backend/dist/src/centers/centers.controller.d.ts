@@ -4,8 +4,8 @@ export declare class CentersController {
     constructor(prisma: PrismaService);
     getAll(): Promise<{
         id: number;
-        login: string;
         name: string;
+        login: string;
         password: string;
         status: string;
         botToken: string | null;
@@ -13,8 +13,8 @@ export declare class CentersController {
     }[]>;
     create(data: any): Promise<{
         id: number;
-        login: string;
         name: string;
+        login: string;
         password: string;
         status: string;
         botToken: string | null;
@@ -22,8 +22,8 @@ export declare class CentersController {
     }>;
     remove(id: string): Promise<{
         id: number;
-        login: string;
         name: string;
+        login: string;
         password: string;
         status: string;
         botToken: string | null;
@@ -31,8 +31,26 @@ export declare class CentersController {
     }>;
     update(id: string, data: any): Promise<{
         id: number;
-        login: string;
         name: string;
+        login: string;
+        password: string;
+        status: string;
+        botToken: string | null;
+        createdAt: Date;
+    }>;
+    updateMe(req: any, data: any): Promise<{
+        id: number;
+        name: string;
+        login: string;
+        password: string;
+        status: string;
+        botToken: string | null;
+        createdAt: Date;
+    }>;
+    updateProfile(req: any, data: any): Promise<{
+        id: number;
+        name: string;
+        login: string;
         password: string;
         status: string;
         botToken: string | null;

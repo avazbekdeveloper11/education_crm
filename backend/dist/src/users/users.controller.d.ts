@@ -8,9 +8,9 @@ export declare class UsersController {
         name: string | null;
         password: string;
         createdAt: Date;
+        centerId: number | null;
         role: string;
         specialization: string | null;
-        centerId: number | null;
     }[]>;
     create(req: any, data: any): Promise<{
         id: number;
@@ -18,9 +18,9 @@ export declare class UsersController {
         name: string | null;
         password: string;
         createdAt: Date;
+        centerId: number | null;
         role: string;
         specialization: string | null;
-        centerId: number | null;
     }>;
     update(req: any, id: string, data: any): Promise<{
         id: number;
@@ -28,9 +28,9 @@ export declare class UsersController {
         name: string | null;
         password: string;
         createdAt: Date;
+        centerId: number | null;
         role: string;
         specialization: string | null;
-        centerId: number | null;
     }>;
     remove(req: any, id: string): Promise<{
         id: number;
@@ -38,8 +38,8 @@ export declare class UsersController {
         name: string | null;
         password: string;
         createdAt: Date;
+        centerId: number | null;
         role: string;
         specialization: string | null;
-        centerId: number | null;
     }>;
 }

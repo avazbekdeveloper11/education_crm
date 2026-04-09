@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
+const schedule_1 = require("@nestjs/schedule");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const auth_module_1 = require("./auth/auth.module");
@@ -21,14 +22,27 @@ const users_module_1 = require("./users/users.module");
 const attendance_module_1 = require("./attendance/attendance.module");
 const reports_module_1 = require("./reports/reports.module");
 const leads_module_1 = require("./leads/leads.module");
+const tasks_service_1 = require("./tasks/tasks.service");
+const notifications_module_1 = require("./notifications/notifications.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [auth_module_1.AuthModule, students_module_1.StudentsModule, courses_module_1.CoursesModule, groups_module_1.GroupsModule, payments_module_1.PaymentsModule, users_module_1.UsersModule, attendance_module_1.AttendanceModule, reports_module_1.ReportsModule, leads_module_1.LeadsModule],
+        imports: [
+            schedule_1.ScheduleModule.forRoot(),
+            auth_module_1.AuthModule,
+            students_module_1.StudentsModule,
+            courses_module_1.CoursesModule,
+            groups_module_1.GroupsModule,
+            payments_module_1.PaymentsModule,
+            users_module_1.UsersModule,
+            attendance_module_1.AttendanceModule,
+            reports_module_1.ReportsModule,
+            leads_module_1.LeadsModule, notifications_module_1.NotificationsModule
+        ],
         controllers: [app_controller_1.AppController, centers_controller_1.CentersController],
-        providers: [app_service_1.AppService, prisma_service_1.PrismaService],
+        providers: [app_service_1.AppService, prisma_service_1.PrismaService, tasks_service_1.TasksService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

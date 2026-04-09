@@ -67,8 +67,15 @@ let GroupsService = class GroupsService {
             where: { id, centerId },
         });
     }
-    async findOne(id, centerId) {
-        const today = new Date();
+    async findOne(id, centerId, dateString) {
+        let today;
+        if (dateString) {
+            const [y, m, d] = dateString.split('-').map(Number);
+            today = new Date(y, m - 1, d);
+        }
+        else {
+            today = new Date();
+        }
         today.setHours(0, 0, 0, 0);
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
@@ -78,9 +85,8 @@ let GroupsService = class GroupsService {
                 course: true,
                 students: {
                     include: {
-                        absenceRequests: {
-                            where: { date: { gte: today, lt: tomorrow } }
-                        }
+                        absenceRequests: { where: { date: { gte: today, lt: tomorrow } } },
+                        attendance: { where: { groupId: id, date: { gte: today, lt: tomorrow } } }
                     }
                 }
             }

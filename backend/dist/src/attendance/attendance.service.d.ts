@@ -3,6 +3,7 @@ export declare class AttendanceService {
     private prisma;
     constructor(prisma: PrismaService);
     markAttendance(data: any, centerId: number): Promise<import("@prisma/client").Prisma.BatchPayload>;
+    private notifyParents;
     getGroupAttendance(groupId: number, centerId: number): Promise<({
         student: {
             id: number;
@@ -24,8 +25,8 @@ export declare class AttendanceService {
         createdAt: Date;
         centerId: number;
         studentId: number;
-        groupId: number;
         date: Date;
+        groupId: number;
     })[]>;
     getStudentAttendance(studentId: number, centerId: number): Promise<({
         group: {
@@ -33,8 +34,8 @@ export declare class AttendanceService {
             name: string;
             createdAt: Date;
             centerId: number;
-            days: string | null;
             teacher: string | null;
+            days: string | null;
             time: string | null;
             courseId: number;
         };
@@ -44,7 +45,7 @@ export declare class AttendanceService {
         createdAt: Date;
         centerId: number;
         studentId: number;
-        groupId: number;
         date: Date;
+        groupId: number;
     })[]>;
 }

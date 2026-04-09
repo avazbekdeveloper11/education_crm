@@ -24,8 +24,8 @@ export declare class AttendanceController {
         createdAt: Date;
         centerId: number;
         studentId: number;
-        groupId: number;
         date: Date;
+        groupId: number;
     })[]>;
     getByStudent(id: string, req: any): Promise<({
         group: {
@@ -33,8 +33,8 @@ export declare class AttendanceController {
             name: string;
             createdAt: Date;
             centerId: number;
-            days: string | null;
             teacher: string | null;
+            days: string | null;
             time: string | null;
             courseId: number;
         };
@@ -44,7 +44,7 @@ export declare class AttendanceController {
         createdAt: Date;
         centerId: number;
         studentId: number;
-        groupId: number;
         date: Date;
+        groupId: number;
     })[]>;
 }

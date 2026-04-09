@@ -3,98 +3,98 @@ export declare class GroupsService {
     private prisma;
     constructor(prisma: PrismaService);
     findAll(centerId: number, user: any): Promise<({
-        course: {
-            id: number;
-            name: string;
-            centerId: number;
-            createdAt: Date;
-            description: string | null;
-            duration: number;
-            price: number;
-        };
         students: {
             id: number;
             name: string;
-            centerId: number;
+            status: string;
             createdAt: Date;
+            centerId: number;
             phone: string;
             address: string | null;
             dob: string | null;
-            status: string;
             telegramId: string | null;
             parentTelegramId: string | null;
             parentPhone: string | null;
             updatedAt: Date;
         }[];
+        course: {
+            id: number;
+            name: string;
+            createdAt: Date;
+            description: string | null;
+            duration: number;
+            price: number;
+            centerId: number;
+        };
         _count: {
             students: number;
         };
     } & {
         id: number;
         name: string;
+        createdAt: Date;
+        centerId: number;
         teacher: string | null;
         days: string | null;
         time: string | null;
-        centerId: number;
         courseId: number;
-        createdAt: Date;
     })[]>;
     create(data: any, centerId: number): Promise<{
         course: {
             id: number;
             name: string;
-            centerId: number;
             createdAt: Date;
             description: string | null;
             duration: number;
             price: number;
+            centerId: number;
         };
     } & {
         id: number;
         name: string;
+        createdAt: Date;
+        centerId: number;
         teacher: string | null;
         days: string | null;
         time: string | null;
-        centerId: number;
         courseId: number;
-        createdAt: Date;
     }>;
     update(id: number, data: any, centerId: number): Promise<{
         course: {
             id: number;
             name: string;
-            centerId: number;
             createdAt: Date;
             description: string | null;
             duration: number;
             price: number;
+            centerId: number;
         };
     } & {
         id: number;
         name: string;
+        createdAt: Date;
+        centerId: number;
         teacher: string | null;
         days: string | null;
         time: string | null;
-        centerId: number;
         courseId: number;
-        createdAt: Date;
     }>;
     remove(id: number, centerId: number): Promise<import("@prisma/client").Prisma.BatchPayload>;
-    findOne(id: number, centerId: number): Promise<({
-        course: {
-            id: number;
-            name: string;
-            centerId: number;
-            createdAt: Date;
-            description: string | null;
-            duration: number;
-            price: number;
-        };
+    findOne(id: number, centerId: number, dateString?: string): Promise<({
         students: ({
+            attendance: {
+                id: number;
+                status: string;
+                createdAt: Date;
+                centerId: number;
+                studentId: number;
+                date: Date;
+                groupId: number;
+            }[];
             absenceRequests: {
                 id: number;
-                centerId: number;
                 createdAt: Date;
+                centerId: number;
                 studentId: number;
                 date: Date;
                 reason: string | null;
@@ -102,25 +102,34 @@ export declare class GroupsService {
         } & {
             id: number;
             name: string;
-            centerId: number;
+            status: string;
             createdAt: Date;
+            centerId: number;
             phone: string;
             address: string | null;
             dob: string | null;
-            status: string;
             telegramId: string | null;
             parentTelegramId: string | null;
             parentPhone: string | null;
             updatedAt: Date;
         })[];
+        course: {
+            id: number;
+            name: string;
+            createdAt: Date;
+            description: string | null;
+            duration: number;
+            price: number;
+            centerId: number;
+        };
     } & {
         id: number;
         name: string;
+        createdAt: Date;
+        centerId: number;
         teacher: string | null;
         days: string | null;
         time: string | null;
-        centerId: number;
         courseId: number;
-        createdAt: Date;
     }) | null>;
 }

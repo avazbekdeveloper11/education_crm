@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { uz } from "date-fns/locale";
 
 interface SessionData {
-  step: "idle" | "awaiting_parent_phone" | "awaiting_parent_contact";
+  step: "idle" | "awaiting_parent_phone" | "awaiting_parent_contact" | "awaiting_absence_reason";
   studentId?: number;
 }
 type MyContext = Context & { session: SessionData };
@@ -108,6 +108,12 @@ class BotManager {
 
           const expectedPhone = student.parentPhone ? student.parentPhone.replace("+", "") : "";
           if (phone === expectedPhone || phone.endsWith(expectedPhone) || expectedPhone.endsWith(phone)) {
+            // Unique constraint xatosini oldini olish uchun
+            await (prisma.student as any).updateMany({
+              where: { parentTelegramId: ctx.from!.id.toString() },
+              data: { parentTelegramId: null }
+            });
+
             await (prisma.student as any).update({
               where: { id: student.id },
               data: { parentTelegramId: ctx.from!.id.toString() }
@@ -139,10 +145,32 @@ class BotManager {
           return;
         }
 
-        const student = await (prisma.student as any).findFirst({ where: { phone: phone, centerId: centerId } });
-        if (!student) return ctx.reply("Kechirasiz, bu raqam tizimda topilmadi. 🧐");
+        const searchPhone = phone.length > 9 ? phone.slice(-9) : phone;
 
-        await (prisma.student as any).update({ where: { id: student.id }, data: { telegramId: ctx.from!.id.toString() } });
+        const students = await (prisma.student as any).findMany({ 
+          where: { 
+            centerId: centerId,
+            phone: { contains: searchPhone } 
+          } 
+        });
+
+        const student = students.find((s: any) => {
+          const dbPhone = s.phone.replace(/\D/g, "");
+          return dbPhone === phone || dbPhone.endsWith(phone) || phone.endsWith(dbPhone);
+        });
+
+        if (!student) return ctx.reply("Kechirasiz, bu raqam tizimda topilmadi. 🧐\n\nIltimos, admin panelda raqamingiz to'g'ri kiritilganini tekshiring.");
+
+        // Unique constraint xatosini oldini olish uchun, ushbu telegramId boshqa birovda bo'lsa uni tozalaymiz
+        await (prisma.student as any).updateMany({
+          where: { telegramId: ctx.from!.id.toString() },
+          data: { telegramId: null }
+        });
+
+        await (prisma.student as any).update({ 
+          where: { id: student.id }, 
+          data: { telegramId: ctx.from!.id.toString() } 
+        });
         
         // Agar ota-ona allaqachon bog'langan bo'lsa, uning bloklanmaganini tekshiramiz
         if (student.parentTelegramId) {
@@ -175,8 +203,14 @@ class BotManager {
 
       bot.on("message:text", async (ctx) => {
         if (ctx.session.step === "awaiting_parent_phone" && ctx.session.studentId) {
-          const pPhone = ctx.message.text.replace("+", "").trim();
-          if (pPhone.length < 9) return ctx.reply("Iltimos, raqamni to'liq formatda yozing.");
+          let pPhone = ctx.message.text.replace(/\D/g, "").trim();
+          if (pPhone.length === 9) {
+            pPhone = "998" + pPhone;
+          }
+
+          if (pPhone.length !== 12) {
+            return ctx.reply("❌ Raqam noto'g'ri. Iltimos, 9 ta (masalan: 901234567) yoki 12 ta raqam (998901234567) ko'rinishida yozing.");
+          }
 
           await (prisma.student as any).update({
             where: { id: ctx.session.studentId },
@@ -212,6 +246,31 @@ class BotManager {
           .text("✍️ Kelolmaslik")
           .resized();
 
+        if (ctx.session.step === "awaiting_absence_reason") {
+          if (text === "❌ Bekor qilish") {
+            ctx.session.step = "idle";
+            return ctx.reply("Amal bekor qilindi.", { reply_markup: kb });
+          }
+
+          const today = new Date();
+          const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+          start.setHours(0, 0, 0, 0);
+          const end = new Date(start);
+          end.setDate(end.getDate() + 1);
+
+          await (prisma as any).absenceRequest.create({
+            data: {
+              studentId: student.id,
+              centerId: centerId,
+              date: start,
+              reason: text // Foydalanuvchi yozgan sabab
+            }
+          });
+
+          ctx.session.step = "idle";
+          return ctx.reply("✅ Bugungi dars uchun ogohlantirish saqlandi. Muallim davomat olayotganida ushbu sababni ko'radi. ✍️", { reply_markup: kb });
+        }
+
         if (text === "💰 To'lovlar") {
           if (!student.payments.length) return ctx.reply("Sizda hali to'lovlar mavjud emas. 💳");
           
@@ -222,10 +281,10 @@ class BotManager {
             const lastPayment = student.payments.find((p: any) => p.courseId === course.id);
             msg += "📚 <b>" + course.name + "</b>\n";
             if (lastPayment) {
-              msg += "💰 Summa: <b>" + lastPayment.amount.toLocaleString() + "</b> so'm\n";
-              msg += "📅 Sana: " + formatDateUz(lastPayment.paymentDate);
+              msg += "💵 Oxirgi to'lov: <b>" + lastPayment.amount.toLocaleString() + "</b> so'm\n";
+              msg += "📅 To'lov kuni: " + formatDateUz(lastPayment.paymentDate) + "\n";
               if (lastPayment.paidUntil) {
-                msg += "\n✅ To'langan: <b>" + formatDateUz(lastPayment.paidUntil) + "</b> gacha";
+                msg += "⏳ <b>Amal qilish muddati:</b> <code>" + formatDateUz(lastPayment.paidUntil) + "</code> gacha ✅";
               }
             } else {
               msg += "❌ Ushbu kurs uchun to'lov topilmadi.";
@@ -268,7 +327,9 @@ class BotManager {
         } else if (text === "✍️ Kelolmaslik") {
           const today = new Date();
           const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-          const end = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+          start.setHours(0, 0, 0, 0);
+          const end = new Date(start);
+          end.setDate(end.getDate() + 1);
 
           const existing = await (prisma as any).absenceRequest.findFirst({
             where: { studentId: student.id, date: { gte: start, lt: end } }
@@ -278,16 +339,9 @@ class BotManager {
             return ctx.reply("Bugun uchun allaqachon darsda qatnasholmaslik haqida ogohlantirish yuborgansiz. ✔️");
           }
 
-          await (prisma as any).absenceRequest.create({
-            data: {
-              studentId: student.id,
-              centerId: centerId,
-              date: start, // Bugungi sana
-              reason: "O'quvchi/Ota-ona bot orqali bildirdi"
-            }
-          });
-
-          await ctx.reply("✅ Bugungi dars uchun ogohlantirish saqlandi. Muallim davomat olayotganida bu haqda xabar ko'radi. ✍️", { reply_markup: kb });
+          ctx.session.step = "awaiting_absence_reason";
+          const cancelKb = new Keyboard().text("❌ Bekor qilish").resized();
+          await ctx.reply("Iltimos, darsga kelolmaslik sababini yozib qoldiring (masalan: Mazam yo'q edi):", { reply_markup: cancelKb });
         }
       });
 

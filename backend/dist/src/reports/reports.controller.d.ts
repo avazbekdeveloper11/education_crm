@@ -23,13 +23,13 @@ export declare class ReportsController {
             centerId: number;
             courseId: number;
             amount: number;
-            studentId: number;
             paymentDate: Date;
             paidUntil: Date | null;
             paymentType: string;
             periodFrom: Date | null;
             periodTo: Date | null;
             notes: string | null;
+            studentId: number;
         })[];
         dailyStats: (import("@prisma/client").Prisma.PickEnumerable<import("@prisma/client").Prisma.PaymentGroupByOutputType, "paymentDate"[]> & {
             _sum: {

@@ -22,6 +22,11 @@ export class StudentsController {
     return this.studentsService.update(parseInt(id), body, req.user.centerId);
   }
 
+  @Get(':id')
+  async findOne(@Req() req: any, @Param('id') id: string) {
+    return this.studentsService.findOne(parseInt(id), req.user.centerId);
+  }
+
   @Delete(':id')
   async remove(@Req() req: any, @Param('id') id: string) {
     return this.studentsService.remove(parseInt(id), req.user.centerId);

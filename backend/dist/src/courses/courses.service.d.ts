@@ -6,28 +6,28 @@ export declare class CoursesService {
         id: number;
         name: string;
         createdAt: Date;
-        centerId: number;
         description: string | null;
         duration: number;
         price: number;
+        centerId: number;
     }[]>;
     create(data: any, centerId: number): Promise<{
         id: number;
         name: string;
         createdAt: Date;
-        centerId: number;
         description: string | null;
         duration: number;
         price: number;
+        centerId: number;
     }>;
     update(id: number, data: any, centerId: number): Promise<{
         id: number;
         name: string;
         createdAt: Date;
-        centerId: number;
         description: string | null;
         duration: number;
         price: number;
+        centerId: number;
     }>;
     remove(id: number, centerId: number): Promise<import("@prisma/client").Prisma.BatchPayload>;
 }
@@ -38,28 +38,28 @@ export declare class CoursesController {
         id: number;
         name: string;
         createdAt: Date;
-        centerId: number;
         description: string | null;
         duration: number;
         price: number;
+        centerId: number;
     }[]>;
     create(req: any, body: any): Promise<{
         id: number;
         name: string;
         createdAt: Date;
-        centerId: number;
         description: string | null;
         duration: number;
         price: number;
+        centerId: number;
     }>;
     update(req: any, id: string, body: any): Promise<{
         id: number;
         name: string;
         createdAt: Date;
-        centerId: number;
         description: string | null;
         duration: number;
         price: number;
+        centerId: number;
     }>;
     remove(req: any, id: string): Promise<import("@prisma/client").Prisma.BatchPayload>;
 }

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -12,10 +13,23 @@ import { UsersModule } from './users/users.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { ReportsModule } from './reports/reports.module';
 import { LeadsModule } from './leads/leads.module';
+import { TasksService } from './tasks/tasks.service';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
-  imports: [AuthModule, StudentsModule, CoursesModule, GroupsModule, PaymentsModule, UsersModule, AttendanceModule, ReportsModule, LeadsModule],
+  imports: [
+    ScheduleModule.forRoot(),
+    AuthModule, 
+    StudentsModule, 
+    CoursesModule, 
+    GroupsModule, 
+    PaymentsModule, 
+    UsersModule, 
+    AttendanceModule, 
+    ReportsModule, 
+    LeadsModule, NotificationsModule
+  ],
   controllers: [AppController, CentersController],
-  providers: [AppService, PrismaService],
+  providers: [AppService, PrismaService, TasksService],
 })
 export class AppModule {}

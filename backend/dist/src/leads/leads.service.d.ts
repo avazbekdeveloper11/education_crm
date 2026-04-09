@@ -18,9 +18,9 @@ export declare class LeadsService {
         status: string;
         createdAt: Date;
         centerId: number;
+        courseId: number | null;
         phone: string;
         updatedAt: Date;
-        courseId: number | null;
         notes: string | null;
         source: string | null;
     }>;
@@ -37,9 +37,9 @@ export declare class LeadsService {
         status: string;
         createdAt: Date;
         centerId: number;
+        courseId: number | null;
         phone: string;
         updatedAt: Date;
-        courseId: number | null;
         notes: string | null;
         source: string | null;
     })[]>;
@@ -53,9 +53,9 @@ export declare class LeadsService {
         status: string;
         createdAt: Date;
         centerId: number;
+        courseId: number | null;
         phone: string;
         updatedAt: Date;
-        courseId: number | null;
         notes: string | null;
         source: string | null;
     }>;
@@ -65,9 +65,9 @@ export declare class LeadsService {
         status: string;
         createdAt: Date;
         centerId: number;
+        courseId: number | null;
         phone: string;
         updatedAt: Date;
-        courseId: number | null;
         notes: string | null;
         source: string | null;
     }>;

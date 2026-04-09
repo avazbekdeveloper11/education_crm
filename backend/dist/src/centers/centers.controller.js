@@ -67,6 +67,26 @@ let CentersController = class CentersController {
             }
         });
     }
+    async updateMe(req, data) {
+        const centerId = req.user.centerId;
+        return this.prisma.center.update({
+            where: { id: centerId },
+            data: {
+                login: data.login,
+                password: data.password
+            }
+        });
+    }
+    async updateProfile(req, data) {
+        const centerId = req.user.centerId;
+        return this.prisma.center.update({
+            where: { id: centerId },
+            data: {
+                name: data.name,
+                botToken: data.botToken
+            }
+        });
+    }
 };
 exports.CentersController = CentersController;
 __decorate([
@@ -97,6 +117,22 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], CentersController.prototype, "update", null);
+__decorate([
+    (0, common_1.Put)('me/credentials'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], CentersController.prototype, "updateMe", null);
+__decorate([
+    (0, common_1.Put)('me/profile'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], CentersController.prototype, "updateProfile", null);
 exports.CentersController = CentersController = __decorate([
     (0, common_1.Controller)('centers'),
     (0, common_1.UseGuards)(jwt_strategy_1.JwtAuthGuard),

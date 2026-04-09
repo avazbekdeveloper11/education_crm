@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req, Query } from '@nestjs/common';
 import { GroupsService } from './groups.service';
 import { JwtAuthGuard } from '../auth/jwt.strategy';
 
@@ -23,8 +23,8 @@ export class GroupsController {
   }
 
   @Get(':id')
-  async findOne(@Req() req: any, @Param('id') id: string) {
-    return this.groupsService.findOne(parseInt(id), req.user.centerId);
+  async findOne(@Req() req: any, @Param('id') id: string, @Query('date') date?: string) {
+    return this.groupsService.findOne(parseInt(id), req.user.centerId, date);
   }
 
   @Delete(':id')

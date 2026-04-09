@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Param, Delete, Put, Req } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtAuthGuard } from '../auth/jwt.strategy';
 
@@ -59,6 +59,30 @@ export class CentersController {
         name: data.name,
         login: data.login,
         password: data.pass,
+        botToken: data.botToken
+      }
+    });
+  }
+
+  @Put('me/credentials')
+  async updateMe(@Req() req: any, @Body() data: any) {
+    const centerId = req.user.centerId;
+    return this.prisma.center.update({
+      where: { id: centerId },
+      data: {
+        login: data.login,
+        password: data.password
+      }
+    });
+  }
+
+  @Put('me/profile')
+  async updateProfile(@Req() req: any, @Body() data: any) {
+    const centerId = req.user.centerId;
+    return this.prisma.center.update({
+      where: { id: centerId },
+      data: {
+        name: data.name,
         botToken: data.botToken
       }
     });

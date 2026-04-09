@@ -3,20 +3,20 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class GroupsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async findAll(centerId: number, user: any) {
     const where: any = { centerId };
-    
+
     // If teacher, only show their groups
     if (user.role === 'TEACHER') {
-        where.teacher = user.name;
+      where.teacher = user.name;
     }
 
     // @ts-ignore
     return this.prisma.group.findMany({
       where,
-      include: { 
+      include: {
         course: true,
         students: true,
         _count: { select: { students: true } }
@@ -69,8 +69,14 @@ export class GroupsService {
     });
   }
 
-  async findOne(id: number, centerId: number) {
-    const today = new Date();
+  async findOne(id: number, centerId: number, dateString?: string) {
+    let today: Date;
+    if (dateString) {
+      const [y, m, d] = dateString.split('-').map(Number);
+      today = new Date(y, m - 1, d);
+    } else {
+      today = new Date();
+    }
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -82,10 +88,8 @@ export class GroupsService {
         course: true,
         students: {
           include: {
-            absenceRequests: {
-              where: { date: { gte: today, lt: tomorrow } }
-            }
-          }
+            absenceRequests: { where: { date: { gte: today, lt: tomorrow } } },
+            attendance: { where: { groupId: id, date: { gte: today, lt: tomorrow } } } }
         }
       }
     });
