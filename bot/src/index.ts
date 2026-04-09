@@ -22,16 +22,28 @@ class BotManager {
   private bots: Map<number, Bot<MyContext>> = new Map();
 
   async startAll() {
-    console.log("BotManager: Markazlarni qidirish boshlandi...");
+    console.log("🚀 BotManager startAll ishladi");
+    console.log("⏳ DB dan markazlar olinmoqda...");
     try {
+      const allCenters = await prisma.center.findMany();
+      console.log("📦 Barcha markazlar (filtrsiz):", JSON.stringify(allCenters, null, 2));
+      
       const centers = await prisma.center.findMany({
         where: { botToken: { not: null, notIn: ["", "none", "token"] } }
       });
-      console.log(`BotManager: ${centers.length} ta faol bot topildi.`);
+      console.log(`📊 Faol botli markazlar soni: ${centers.length}`);
+      
+      if (centers.length === 0) {
+        console.warn("⚠️ Diqqat: Birorta ham botToken'li faol markaz topilmadi!");
+      }
+
       for (const center of centers) {
         if (center.botToken) await this.startBot(center.id, center.name, center.botToken);
       }
-    } catch (err: any) { console.error("Startup error:", err.message); }
+    } catch (err: any) { 
+      console.error("❌ Startup error:", err.message);
+      console.error("Stack:", err.stack);
+    }
     setInterval(() => this.checkNewBots(), 60000);
   }
 
