@@ -3,6 +3,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   try {
+    console.log("DATABASE_URL:", process.env.DATABASE_URL);
     console.log("Fetching students...");
     const students = await prisma.student.findMany({
       include: { courses: true, groups: true }
