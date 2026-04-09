@@ -16,13 +16,7 @@ function formatDateUz(date: Date) {
 
 dotenv.config();
 console.log("Runtime DATABASE_URL:", process.env.DATABASE_URL);
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL!
-    }
-  }
-});
+const prisma = new PrismaClient();
 
 class BotManager {
   private bots: Map<number, Bot<MyContext>> = new Map();
