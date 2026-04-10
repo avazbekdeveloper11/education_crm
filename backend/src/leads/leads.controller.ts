@@ -23,6 +23,14 @@ export class LeadsController {
     return this.leadsService.getLeads(req.user.centerId, query);
   }
 
+  @Get('reminders')
+  async findReminders(@Req() req: any) {
+    if (req.user.role !== 'OWNER' && req.user.role !== 'SUPER_ADMIN') {
+        throw new ForbiddenException('Access denied');
+    }
+    return this.leadsService.getReminders(req.user.centerId);
+  }
+
   @Patch(':id')
   async update(@Param('id') id: string, @Req() req: any, @Body() body: any) {
     if (req.user.role !== 'OWNER' && req.user.role !== 'SUPER_ADMIN') {

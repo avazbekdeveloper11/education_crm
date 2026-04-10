@@ -127,8 +127,9 @@ model Lead {
   name      String
   phone     String
   source    String?  // Instagram, Telegram, Recommendation, etc.
-  status    String   @default("New") // New, Contacted, Trial, Student, Rejected
+  status    String   @default("New") // New, RECONTACT, INFO_GIVEN, Trial, Student, Rejected
   notes     String?
+  callbackAt DateTime? // Reminder date/time
   centerId  Int
   courseId  Int?     // Interested in which course?
   createdAt DateTime @default(now())

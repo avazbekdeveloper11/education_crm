@@ -40,8 +40,22 @@ export class LeadsService {
       where: { id, centerId },
     });
   }
+  
+  async getReminders(centerId: number) {
+    return this.prisma.lead.findMany({
+        where: {
+            centerId,
+            callbackAt: {
+                not: null,
+                gte: new Date(), // Only future ones? or also overdue?
+            }
+        },
+        include: { course: { select: { name: true } } },
+        orderBy: { callbackAt: 'asc' },
+    });
+  }
 
-  async convertToStudent(id: number, centerId: number, data?: { groupId?: number; courseId?: number }) {
+  async convertToStudent(id: number, centerId: number, data?: { groupId?: number; courseId?: number; parentPhone?: string; dob?: string; address?: string }) {
     const lead = await this.prisma.lead.findUnique({
       where: { id, centerId },
     });
@@ -57,6 +71,9 @@ export class LeadsService {
         phone: lead.phone,
         centerId: lead.centerId,
         status: 'Active',
+        parentPhone: data?.parentPhone,
+        dob: data?.dob,
+        address: data?.address,
         ...(courseId && { courses: { connect: { id: courseId } } }),
         ...(data?.groupId && { groups: { connect: { id: data.groupId } } }),
       }
