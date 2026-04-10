@@ -365,7 +365,9 @@ class BotManager {
       // Tokenni tekshirish
       await bot.init();
       
-      bot.start({ onStart: (i) => console.log("@" + i.username + " OK") });
+      bot.start({ onStart: (i) => console.log("@" + i.username + " OK") }).catch((err) => {
+        console.error(`❌ [${centerName}] boti kutilmaganda to'xtadi:`, err.message);
+      });
       this.bots.set(centerId, bot);
     } catch (e: any) { 
       console.error(`❌ [${centerName}] boti ishga tushmadi:`, e.message); 
