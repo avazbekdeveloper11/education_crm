@@ -30,7 +30,7 @@ class BotManager {
   private bots: Map<number, Bot<MyContext>> = new Map();
 
   async startAll() {
-    console.log("🚀 BotManager startAll ishladi");
+    console.log("🚀 LATEST BOT VERSION v3 START");
     console.log("⏳ DB dan markazlar olinmoqda...");
     try {
       const allCenters = await prisma.center.findMany();
