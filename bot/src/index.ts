@@ -362,9 +362,14 @@ class BotManager {
         console.error(`Error in bot ${centerName}:`, err.message);
       });
 
+      // Tokenni tekshirish
+      await bot.init();
+      
       bot.start({ onStart: (i) => console.log("@" + i.username + " OK") });
       this.bots.set(centerId, bot);
-    } catch (e: any) { console.error(e.message); }
+    } catch (e: any) { 
+      console.error(`❌ [${centerName}] boti ishga tushmadi:`, e.message); 
+    }
   }
 
   async checkNewBots() {
