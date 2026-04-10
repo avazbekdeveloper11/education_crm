@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class PaymentsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService, private notifications: NotificationsService) { }
 
   async create(centerId: number, data: { studentId: number, courseId: number, amount: number, paymentType?: string, notes?: string, periodFrom?: Date, periodTo?: Date }) {
-    // @ts-ignore
-    return (this.prisma.payment as any).create({
+    const payment = await (this.prisma.payment as any).create({
       data: {
         amount: data.amount,
         paymentType: data.paymentType || 'CASH',
@@ -20,14 +20,17 @@ export class PaymentsService {
         center: { connect: { id: centerId } },
       },
       include: {
-        student: {
-          include: {
-            groups: true
-          }
-        },
+        student: true,
         course: true,
       }
     });
+
+    // Trigger notification
+    this.notifications.handlePaymentNotification(payment).catch(err => {
+      console.error('Notification error:', err);
+    });
+
+    return payment;
   }
 
   async findAll(centerId: number) {

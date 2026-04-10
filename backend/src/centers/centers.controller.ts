@@ -21,7 +21,10 @@ export class CentersController {
         name: data.name,
         login: data.login,
         password: data.pass,
-        botToken: data.botToken
+        botToken: data.botToken,
+        eskizEmail: data.eskizEmail,
+        eskizPassword: data.eskizPassword,
+        smsEnabled: data.smsEnabled || false
       }
     });
 
@@ -59,7 +62,10 @@ export class CentersController {
         name: data.name,
         login: data.login,
         password: data.pass,
-        botToken: data.botToken
+        botToken: data.botToken,
+        eskizEmail: data.eskizEmail,
+        eskizPassword: data.eskizPassword,
+        smsEnabled: data.smsEnabled
       }
     });
   }
@@ -83,7 +89,10 @@ export class CentersController {
       where: { id: centerId },
       data: {
         name: data.name,
-        botToken: data.botToken
+        botToken: data.botToken,
+        eskizEmail: data.eskizEmail,
+        eskizPassword: data.eskizPassword,
+        smsEnabled: data.smsEnabled
       }
     });
   }

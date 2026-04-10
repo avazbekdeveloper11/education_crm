@@ -7,6 +7,95 @@ export class NotificationsService {
 
   constructor(private prisma: PrismaService) {}
 
+  async getEskizToken(center: any) {
+    if (!center.eskizEmail || !center.eskizPassword) return null;
+    
+    try {
+      const response = await fetch('https://notify.eskiz.uz/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: center.eskizEmail,
+          password: center.eskizPassword
+        })
+      });
+
+      const data: any = await response.json();
+      return data?.data?.token || null;
+    } catch (e) {
+      this.logger.error(`Eskiz login error: ${e.message}`);
+      return null;
+    }
+  }
+
+  async sendSms(phone: string, message: string, center: any) {
+    if (!center.smsEnabled) return;
+    const token = await this.getEskizToken(center);
+    if (!token) return;
+
+    // Uzb numbers format: 998XXXXXXXXX
+    let cleanPhone = phone.replace(/\D/g, "");
+    if (!cleanPhone.startsWith("998")) cleanPhone = "998" + cleanPhone;
+
+    try {
+      const response = await fetch('https://notify.eskiz.uz/api/message/sms/send', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          mobile_phone: cleanPhone,
+          message: message,
+          from: '4546', // Default Eskiz sender ID
+          callback_url: null
+        })
+      });
+
+      if (!response.ok) {
+        this.logger.error(`SMS yuborishda xato: ${await response.text()}`);
+      }
+    } catch (e) {
+      this.logger.error(`SMS service error: ${e.message}`);
+    }
+  }
+
+  async handlePaymentNotification(payment: any) {
+    const center = await this.prisma.center.findUnique({
+      where: { id: payment.centerId }
+    });
+    if (!center) return;
+
+    const student = payment.student;
+    const amountStr = Number(payment.amount).toLocaleString("ru-RU");
+    const dateStr = new Date(payment.createdAt).toLocaleDateString();
+    
+    // Message template
+    const message = `To'lov qabul qilindi!\n\nTalaba: ${student.name}\nKurs: ${payment.course.name}\nSumma: ${amountStr} UZS\nSana: ${dateStr}\n\nEduMarkaz tizimi`;
+
+    // 1. Send via Telegram if student has telegramId
+    if (center.botToken) {
+      const sendTG = async (chatId: string) => {
+        try {
+          await fetch(`https://api.telegram.org/bot${center.botToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: chatId, text: message })
+          });
+        } catch (e) {}
+      };
+
+      if (student.telegramId) await sendTG(student.telegramId);
+      if (student.parentTelegramId) await sendTG(student.parentTelegramId);
+    }
+
+    // 2. Send via SMS if enabled
+    if (center.smsEnabled) {
+      if (student.phone) await this.sendSms(student.phone, message, center);
+      if (student.parentPhone) await this.sendSms(student.parentPhone, message, center);
+    }
+  }
+
   async sendBulkNotification(
     centerId: number,
     target: 'STUDENTS' | 'LEADS' | 'ALL' | 'GROUP' | 'PARENTS',
@@ -17,8 +106,8 @@ export class NotificationsService {
       where: { id: centerId },
     });
 
-    if (!center || !center.botToken) {
-      throw new Error('Markaz yoki bot tokeni topilmadi');
+    if (!center) {
+      throw new Error('Markaz topilmadi');
     }
 
     let recipients = [];
