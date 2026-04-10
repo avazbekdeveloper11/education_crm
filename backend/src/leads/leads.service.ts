@@ -41,12 +41,14 @@ export class LeadsService {
     });
   }
 
-  async convertToStudent(id: number, centerId: number) {
+  async convertToStudent(id: number, centerId: number, data?: { groupId?: number; courseId?: number }) {
     const lead = await this.prisma.lead.findUnique({
       where: { id, centerId },
     });
 
     if (!lead) throw new Error('Lead not found');
+
+    const courseId = data?.courseId || lead.courseId;
 
     // Create student
     const student = await this.prisma.student.create({
@@ -55,6 +57,8 @@ export class LeadsService {
         phone: lead.phone,
         centerId: lead.centerId,
         status: 'Active',
+        ...(courseId && { courses: { connect: { id: courseId } } }),
+        ...(data?.groupId && { groups: { connect: { id: data.groupId } } }),
       }
     });
 

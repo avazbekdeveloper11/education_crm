@@ -40,10 +40,10 @@ export class LeadsController {
   }
 
   @Post(':id/convert')
-  async convert(@Param('id') id: string, @Req() req: any) {
+  async convert(@Param('id') id: string, @Req() req: any, @Body() body: any) {
     if (req.user.role !== 'OWNER' && req.user.role !== 'SUPER_ADMIN') {
         throw new ForbiddenException('Access denied');
     }
-    return this.leadsService.convertToStudent(Number(id), req.user.centerId);
+    return this.leadsService.convertToStudent(Number(id), req.user.centerId, body);
   }
 }
