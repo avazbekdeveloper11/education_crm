@@ -84,7 +84,7 @@ class BotManager {
         const payload = ctx.match;
         if (payload && payload.startsWith("parent_")) {
           const studentId = parseInt(payload.split("_")[1]!);
-          const student = await (prisma.student as any).findUnique({ where: { id: studentId } });
+          const student = await prisma.student.findUnique({ where: { id: studentId } });
           if (student) {
             ctx.session.step = "awaiting_parent_contact";
             ctx.session.studentId = studentId;
@@ -120,7 +120,7 @@ class BotManager {
               data: { parentTelegramId: null }
             });
 
-            await (prisma.student as any).update({
+            await prisma.student.update({
               where: { id: student.id },
               data: { parentTelegramId: ctx.from!.id.toString() }
             });
@@ -173,7 +173,7 @@ class BotManager {
           data: { telegramId: null }
         });
 
-        await (prisma.student as any).update({ 
+        await prisma.student.update({ 
           where: { id: student.id }, 
           data: { telegramId: ctx.from!.id.toString() } 
         });
@@ -218,7 +218,7 @@ class BotManager {
             return ctx.reply("❌ Raqam noto'g'ri. Iltimos, 9 ta (masalan: 901234567) yoki 12 ta raqam (998901234567) ko'rinishida yozing.");
           }
 
-          await (prisma.student as any).update({
+          await prisma.student.update({
             where: { id: ctx.session.studentId },
             data: { parentPhone: pPhone }
           });
@@ -337,7 +337,7 @@ class BotManager {
           const end = new Date(start);
           end.setDate(end.getDate() + 1);
 
-          const existing = await (prisma as any).absenceRequest.findFirst({
+          const existing = await prisma.absenceRequest.findFirst({
             where: { studentId: student.id, date: { gte: start, lt: end } }
           });
 
