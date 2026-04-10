@@ -14,6 +14,14 @@ function formatDateUz(date: Date) {
   return format(new Date(date), "d-MMMM, yyyy", { locale: uz });
 }
 
+process.on('unhandledRejection', (reason) => {
+  console.error('⚠️ Tutilmagan xato:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('⚠️ Kutilmagan xato:', err.message);
+});
+
 dotenv.config();
 console.log("Runtime DATABASE_URL:", process.env.DATABASE_URL);
 const prisma = new PrismaClient();
@@ -49,9 +57,14 @@ class BotManager {
 
   async startBot(centerId: number, centerName: string, token: string) {
     if (this.bots.has(centerId)) return;
-    console.log(`[${centerName}] boti ishga tushirilmoqda...`);
     try {
+      console.log(`[${centerName}] boti tekshirilmoqda...`);
       const bot = new Bot<MyContext>(token);
+      
+      // Tokenni tekshirish
+      await bot.init();
+      console.log(`✅ @${bot.botInfo.username} bog'landi (${centerName})`);
+
       bot.use(session({ initial: (): SessionData => ({ step: "idle" }) }));
 
       async function showMonthAttendance(ctx: MyContext, year: number, month: number, telegramId: string) {
