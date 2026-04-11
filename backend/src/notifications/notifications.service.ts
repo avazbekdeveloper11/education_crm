@@ -98,9 +98,10 @@ export class NotificationsService {
 
   async sendBulkNotification(
     centerId: number,
-    target: 'STUDENTS' | 'LEADS' | 'ALL' | 'GROUP' | 'PARENTS',
+    target: 'STUDENTS' | 'LEADS' | 'ALL' | 'GROUP' | 'PARENTS' | 'GROUP_PARENTS',
     message: string,
-    groupId?: number
+    groupId?: number,
+    user?: any
   ) {
     const center = await this.prisma.center.findUnique({
       where: { id: centerId },
@@ -108,6 +109,21 @@ export class NotificationsService {
 
     if (!center) {
       throw new Error('Markaz topilmadi');
+    }
+
+    if (user?.role === 'TEACHER') {
+      if (target !== 'GROUP' && target !== 'GROUP_PARENTS') {
+        throw new Error('Siz faqat o\'z guruhlaringizga xabar yuborishingiz mumkin');
+      }
+      if (!groupId) {
+         throw new Error('Guruh tanlanmagan');
+      }
+      const groupCheck = await this.prisma.group.findFirst({
+        where: { id: groupId, centerId, teacher: user.name }
+      });
+      if (!groupCheck) {
+        throw new Error('Sizga faqat o\'z guruhlaringizga xabar yuborishga ruxsat etilgan');
+      }
     }
 
     let recipients = [];
@@ -131,6 +147,19 @@ export class NotificationsService {
         select: { telegramId: true, name: true }
       });
       recipients.push(...students.map(s => ({ chatId: s.telegramId, name: s.name })));
+    }
+
+    if (target === 'GROUP_PARENTS' && groupId) {
+      const parentStudents = await this.prisma.student.findMany({
+        where: { 
+          centerId, 
+          status: 'Active', 
+          parentTelegramId: { not: null },
+          groups: { some: { id: groupId } }
+        },
+        select: { parentTelegramId: true, name: true }
+      });
+      recipients.push(...parentStudents.map(s => ({ chatId: s.parentTelegramId, name: `Parent of ${s.name}` })));
     }
 
     if (target === 'PARENTS' || target === 'ALL') {

@@ -9,10 +9,10 @@ export class ReportsController {
 
   @Get('dashboard')
   getDashboardStats(@Request() req: any, @Query('startDate') start: string, @Query('endDate') end: string) {
-    if (req.user.role !== 'OWNER' && req.user.role !== 'SUPER_ADMIN') {
+    if (req.user.role !== 'OWNER' && req.user.role !== 'SUPER_ADMIN' && req.user.role !== 'TEACHER') {
       throw new ForbiddenException('Access denied');
     }
-    return this.reportsService.getDashboardStats(req.user.centerId, start, end);
+    return this.reportsService.getDashboardStats(req.user.centerId, req.user, start, end);
   }
 
   @Get('finance')
@@ -25,17 +25,17 @@ export class ReportsController {
 
   @Get('students')
   getStudentsReport(@Request() req: any, @Query('startDate') start: string, @Query('endDate') end: string) {
-    if (req.user.role !== 'OWNER' && req.user.role !== 'SUPER_ADMIN') {
+    if (req.user.role !== 'OWNER' && req.user.role !== 'SUPER_ADMIN' && req.user.role !== 'TEACHER') {
       throw new ForbiddenException('Access denied');
     }
-    return this.reportsService.getStudentsReport(req.user.centerId, start, end);
+    return this.reportsService.getStudentsReport(req.user.centerId, req.user, start, end);
   }
 
   @Get('courses')
   getCourseDistribution(@Request() req: any) {
-    if (req.user.role !== 'OWNER' && req.user.role !== 'SUPER_ADMIN') {
+    if (req.user.role !== 'OWNER' && req.user.role !== 'SUPER_ADMIN' && req.user.role !== 'TEACHER') {
       throw new ForbiddenException('Access denied');
     }
-    return this.reportsService.getCourseDistribution(req.user.centerId);
+    return this.reportsService.getCourseDistribution(req.user.centerId, req.user);
   }
 }

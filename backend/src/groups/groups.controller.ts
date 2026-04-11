@@ -19,7 +19,7 @@ export class GroupsController {
 
   @Put(':id')
   async update(@Req() req: any, @Param('id') id: string, @Body() body: any) {
-    return this.groupsService.update(parseInt(id), body, req.user.centerId);
+    return this.groupsService.update(parseInt(id), body, req.user.centerId, req.user);
   }
 
   @Get(':id')
@@ -29,6 +29,6 @@ export class GroupsController {
 
   @Delete(':id')
   async remove(@Req() req: any, @Param('id') id: string) {
-    return this.groupsService.remove(parseInt(id), req.user.centerId);
+    return this.groupsService.remove(parseInt(id), req.user.centerId, req.user);
   }
 }

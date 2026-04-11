@@ -5,11 +5,23 @@ import { PrismaService } from '../prisma/prisma.service';
 export class StudentsService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(centerId: number) {
-    if (!centerId) return []; // Super Admin uchun bo'sh ro'yxat, xato bermasligi uchun
+  async findAll(centerId: number, user: any) {
+    if (!centerId) return [];
+    
+    const where: any = { centerId };
+    
+    // If teacher, only show students from their groups
+    if (user.role === 'TEACHER') {
+      where.groups = {
+        some: {
+          teacher: user.name
+        }
+      };
+    }
+
     // @ts-ignore
     return this.prisma.student.findMany({
-      where: { centerId },
+      where,
       include: { 
         courses: true, 
         groups: { include: { course: true } }, 

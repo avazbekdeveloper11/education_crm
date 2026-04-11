@@ -9,7 +9,7 @@ export class StudentsController {
 
   @Get()
   async findAll(@Req() req: any) {
-    return this.studentsService.findAll(req.user.centerId);
+    return this.studentsService.findAll(req.user.centerId, req.user);
   }
 
   @Post()

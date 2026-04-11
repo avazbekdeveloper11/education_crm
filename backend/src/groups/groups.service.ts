@@ -41,12 +41,16 @@ export class GroupsService {
     });
   }
 
-  async update(id: number, data: any, centerId: number) {
-    // Check ownership first
+  async update(id: number, data: any, centerId: number, user: any) {
     // @ts-ignore
     const group = await this.prisma.group.findUnique({ where: { id } });
     if (!group || (group as any).centerId !== centerId) {
       throw new Error('Group not found or access denied');
+    }
+
+    // Role check
+    if (user.role === 'TEACHER' && group.teacher !== user.name) {
+      throw new Error('Access denied: You can only update your own groups');
     }
 
     // @ts-ignore
@@ -63,7 +67,16 @@ export class GroupsService {
     });
   }
 
-  async remove(id: number, centerId: number) {
+  async remove(id: number, centerId: number, user: any) {
+    // Check role/ownership first for teachers
+    if (user.role === 'TEACHER') {
+      // @ts-ignore
+      const group = await this.prisma.group.findUnique({ where: { id, centerId } });
+      if (!group || group.teacher !== user.name) {
+          throw new Error('Access denied');
+      }
+    }
+
     // @ts-ignore
     return this.prisma.group.deleteMany({
       where: { id, centerId },

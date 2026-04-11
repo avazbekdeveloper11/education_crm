@@ -10,13 +10,14 @@ export class NotificationsController {
   @Post('send')
   async send(
     @Req() req: any,
-    @Body() body: { target: 'STUDENTS' | 'LEADS' | 'ALL' | 'GROUP' | 'PARENTS'; message: string; groupId?: number }
+    @Body() body: { target: 'STUDENTS' | 'LEADS' | 'ALL' | 'GROUP' | 'PARENTS' | 'GROUP_PARENTS'; message: string; groupId?: number }
   ) {
     return this.notificationsService.sendBulkNotification(
       req.user.centerId,
       body.target,
       body.message,
-      body.groupId ? Number(body.groupId) : undefined
+      body.groupId ? Number(body.groupId) : undefined,
+      req.user
     );
   }
 }

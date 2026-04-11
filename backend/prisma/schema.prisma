@@ -14,14 +14,12 @@ model User {
   name      String?
   role           String   @default("OWNER")
   specialization String?
-  telegramId     String?
+  telegramId     String?  @unique
   phone          String?
   centerId       Int?
   center    Center?  @relation(fields: [centerId], references: [id])
   payments  Payment[]
   createdAt DateTime @default(now())
-
-  @@unique([telegramId, centerId])
 }
 model Center {
   id        Int       @id @default(autoincrement())
@@ -98,8 +96,8 @@ model Student {
   address   String?
   dob       String?
   status    String    @default("Active")
-  telegramId String?
-  parentTelegramId String?
+  telegramId String?   @unique
+  parentTelegramId String? @unique
   parentPhone String?
   centerId  Int
   createdAt DateTime  @default(now())
@@ -110,9 +108,6 @@ model Student {
   attendance Attendance[]
   absenceRequests AbsenceRequest[]
   center    Center    @relation(fields: [centerId], references: [id])
-
-  @@unique([telegramId, centerId])
-  @@unique([parentTelegramId, centerId])
 }
 
 model Payment {

@@ -5,13 +5,16 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ReportsService {
   constructor(private prisma: PrismaService) {}
 
-  async getDashboardStats(centerId: number, startDate?: string, endDate?: string) {
+  async getDashboardStats(centerId: number, user: any, startDate?: string, endDate?: string) {
     const start = startDate ? new Date(startDate) : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     const end = endDate ? new Date(endDate) : new Date();
     end.setHours(23, 59, 59, 999);
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
+    const isTeacher = user.role === 'TEACHER';
+    const teacherFilter = isTeacher ? { teacher: user.name } : {};
 
     const [
       totalStudents,
@@ -20,31 +23,40 @@ export class ReportsService {
       todayPayments,
       periodPayments,
     ] = await Promise.all([
-      this.prisma.student.count({ where: { centerId } }),
-      this.prisma.group.count({ where: { centerId } }),
+      this.prisma.student.count({ 
+        where: { 
+          centerId,
+          ...(isTeacher && { 
+            groups: { some: teacherFilter } 
+          })
+        } 
+      }),
+      this.prisma.group.count({ 
+        where: { 
+          centerId,
+          ...teacherFilter
+        } 
+      }),
       this.prisma.user.count({ where: { centerId, role: 'TEACHER' } }),
-      this.prisma.payment.aggregate({
+      !isTeacher ? this.prisma.payment.aggregate({
         where: { centerId, createdAt: { gte: today } },
         _sum: { amount: true },
-      }),
-      this.prisma.payment.aggregate({
+      }) : Promise.resolve({ _sum: { amount: 0 } }),
+      !isTeacher ? this.prisma.payment.aggregate({
         where: { 
           centerId, 
-          createdAt: { 
-            gte: start,
-            lte: end
-          } 
+          createdAt: { gte: start, lte: end } 
         },
         _sum: { amount: true },
-      }),
+      }) : Promise.resolve({ _sum: { amount: 0 } }),
     ]);
 
     return {
       totalStudents,
       totalGroups,
-      totalTeachers,
-      todayRevenue: todayPayments._sum.amount || 0,
-      periodRevenue: periodPayments._sum.amount || 0,
+      totalTeachers: isTeacher ? 1 : totalTeachers,
+      todayRevenue: todayPayments?._sum?.amount || 0,
+      periodRevenue: periodPayments?._sum?.amount || 0,
     };
   }
 
@@ -87,21 +99,27 @@ export class ReportsService {
     };
   }
 
-  async getStudentsReport(centerId: number, startDate?: string, endDate?: string) {
+  async getStudentsReport(centerId: number, user: any, startDate?: string, endDate?: string) {
     const start = startDate ? new Date(startDate) : undefined;
     const end = endDate ? new Date(endDate) : undefined;
     if (end) end.setHours(23, 59, 59, 999);
 
+    const isTeacher = user.role === 'TEACHER';
+    const baseWhere: any = { centerId };
+    if (isTeacher) {
+      baseWhere.groups = { some: { teacher: user.name } };
+    }
+
     const totalByStatus = await this.prisma.student.groupBy({
       by: ['status'],
-      where: { centerId },
+      where: baseWhere,
       _count: true,
     });
 
     const studentGrowth = await this.prisma.student.groupBy({
       by: ['createdAt'],
       where: { 
-        centerId,
+        ...baseWhere,
         createdAt: start || end ? {
             ...(start && { gte: start }),
             ...(end && { lte: end })
@@ -117,12 +135,22 @@ export class ReportsService {
     };
   }
 
-  async getCourseDistribution(centerId: number) {
+  async getCourseDistribution(centerId: number, user: any) {
+    const isTeacher = user.role === 'TEACHER';
     const courses = await this.prisma.course.findMany({
-      where: { centerId },
+      where: { 
+        centerId,
+        ...(isTeacher && {
+            groups: { some: { teacher: user.name } }
+        })
+      },
       include: {
         _count: {
-          select: { students: true }
+          select: { students: {
+            where: isTeacher ? {
+                groups: { some: { teacher: user.name } }
+            } : undefined
+          } }
         }
       }
     });
@@ -130,7 +158,7 @@ export class ReportsService {
     return courses.map(c => ({
       name: c.name,
       studentCount: c._count.students,
-      price: c.price
+      price: isTeacher ? 0 : c.price
     }));
   }
 }

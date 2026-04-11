@@ -23,6 +23,11 @@ export class UsersController {
     return this.usersService.create(data, req.user.centerId);
   }
 
+  @Put('me')
+  updateMe(@Request() req: any, @Body() data: any) {
+    return this.usersService.update(req.user.userId, data, req.user.centerId);
+  }
+
   @Put(':id')
   update(@Request() req: any, @Param('id') id: string, @Body() data: any) {
     if (req.user.role !== 'OWNER' && req.user.role !== 'SUPER_ADMIN') {
