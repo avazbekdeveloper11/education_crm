@@ -16,6 +16,7 @@ export class CentersController {
 
   @Post()
   async create(@Body() data: any) {
+    console.log("Creating center with data:", data);
     const center = await this.prisma.center.create({
       data: {
         name: data.name,
@@ -33,7 +34,6 @@ export class CentersController {
     });
 
     try {
-        // Automatically create a related user with OWNER role
         await this.prisma.user.create({
             data: {
                 name: data.name + " (Boshqaruvchi)",
@@ -57,23 +57,39 @@ export class CentersController {
     });
   }
 
+  @Put(':id')
   @Post(':id')
   async update(@Param('id') id: string, @Body() data: any) {
+    console.log(`Updating center ${id} with data:`, data);
+    
+    // Safely parse dates
+    const parseDate = (d: any) => {
+        if (!d) return undefined;
+        const date = new Date(d);
+        return isNaN(date.getTime()) ? undefined : date;
+    };
+
+    const updateData: any = {
+      name: data.name,
+      login: data.login,
+      botToken: data.botToken,
+      eskizEmail: data.eskizEmail,
+      eskizPassword: data.eskizPassword,
+      smsEnabled: data.smsEnabled,
+      tariff: data.tariff,
+      tariffType: data.tariffType,
+      tariffStartedAt: parseDate(data.tariffStartedAt),
+      tariffExpiresAt: parseDate(data.tariffExpiresAt),
+    };
+
+    // Only update password if provided
+    if (data.pass) {
+        updateData.password = data.pass;
+    }
+
     return this.prisma.center.update({
       where: { id: parseInt(id) },
-      data: {
-        name: data.name,
-        login: data.login,
-        password: data.pass,
-        botToken: data.botToken,
-        eskizEmail: data.eskizEmail,
-        eskizPassword: data.eskizPassword,
-        smsEnabled: data.smsEnabled,
-        tariff: data.tariff,
-        tariffType: data.tariffType,
-        tariffStartedAt: data.tariffStartedAt ? new Date(data.tariffStartedAt) : undefined,
-        tariffExpiresAt: data.tariffExpiresAt ? new Date(data.tariffExpiresAt) : undefined,
-      } as any
+      data: updateData
     });
   }
 
@@ -100,7 +116,28 @@ export class CentersController {
         eskizEmail: data.eskizEmail,
         eskizPassword: data.eskizPassword,
         smsEnabled: data.smsEnabled
+      } as any
+    });
+  }
+
+  @Post('request-upgrade')
+  async requestUpgrade(@Req() req: any, @Body() data: { tariff: string }) {
+    const centerId = req.user.centerId;
+    return this.prisma.subscriptionRequest.create({
+      data: {
+        centerId,
+        tariff: data.tariff,
+        status: 'Pending'
       }
+    });
+  }
+
+  @Get('upgrade-requests')
+  async getUpgradeRequests() {
+    return this.prisma.subscriptionRequest.findMany({
+      where: { status: 'Pending' },
+      include: { center: true },
+      orderBy: { createdAt: 'desc' }
     });
   }
 }

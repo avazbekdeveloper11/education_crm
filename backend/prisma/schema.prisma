@@ -44,6 +44,18 @@ model Center {
   tariffExpiresAt DateTime?
   attendance Attendance[]
   absenceRequests AbsenceRequest[]
+  subscriptionRequests SubscriptionRequest[]
+}
+
+model SubscriptionRequest {
+  id        Int      @id @default(autoincrement())
+  centerId  Int
+  tariff    String
+  status    String   @default("Pending") // Pending, Approved, Rejected
+  notes     String?
+  createdAt DateTime @default(now())
+  
+  center    Center   @relation(fields: [centerId], references: [id])
 }
 
 model Course {
