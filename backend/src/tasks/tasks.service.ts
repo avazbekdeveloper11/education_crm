@@ -82,6 +82,73 @@ export class TasksService {
     this.logger.debug('To\'lov ogohlantirishlari yakunlandi.');
   }
 
+  // Har kuni soat 10:00 da markazlar muddatini tekshiradi
+  @Cron('0 0 10 * * *')
+  async handleCenterSubscriptionReminders() {
+    this.logger.debug('Markazlar muddati tekshiruvi boshlandi...');
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const centers = await this.prisma.center.findMany({
+      where: {
+        tariffExpiresAt: { not: null }
+      }
+    });
+
+    for (const center of centers) {
+       const expiry = new Date(center.tariffExpiresAt!);
+       expiry.setHours(0, 0, 0, 0);
+
+       const diffTime = expiry.getTime() - today.getTime();
+       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+       // Agar muddati 5, 3 yoki 1 kun qolgan bo'lsa (yoki bugun tugasa)
+       if (diffDays <= 5 && diffDays >= 0) {
+          const message = `🏢 <b>MARKAZ TARIF OGOHLANTIRISHI</b>\n\n` +
+                          `Markaz: <b>${center.name}</b>\n` +
+                          `Tarif: <b>${center.tariff}</b>\n` +
+                          `Holati: <b>${diffDays === 0 ? "Bugun tugaydi!" : diffDays + " kun qoldi"}</b>\n` +
+                          `Amal qilish muddati: <code>${expiry.toLocaleDateString('uz-UZ')}</code>\n\n` +
+                          `<i>Iltimos, xizmat uzilib qolmasligi uchun tarifni uzaytiring.</i> 💳`;
+
+          // Markaz botiga yuboramiz (agar bo'lsa)
+          if (center.botToken && center.botToken !== "none") {
+              // Markazning barcha OWNER larini topamiz
+              const owners = await this.prisma.user.findMany({
+                  where: { centerId: center.id, role: 'OWNER', telegramId: { not: null } } as any
+              });
+
+              for (const owner of owners) {
+                  const ownerAny = owner as any;
+                  if (ownerAny.telegramId) {
+                      await this.sendMsg(center.botToken, ownerAny.telegramId, message);
+                  }
+              }
+          }
+
+          // Super Adminlarga ham yuboramiz (tizim boshqaruvchisi uchun)
+          const superAdmins = await this.prisma.user.findMany({
+              where: { role: 'SUPER_ADMIN', telegramId: { not: null } } as any
+          });
+
+          // Super adminlarga yuborish uchun markazlardan birining botidan foydalanamiz 
+          // yoki tizim bo'yicha birinchi botdan
+          const systemBot = centers.find(c => c.botToken && c.botToken !== "none")?.botToken;
+          if (systemBot) {
+              const adminMsg = `🚨 <b>ADMIN: MARKAZ MUDDATI TUGAYAPTI</b>\n\n` + message;
+              for (const admin of superAdmins) {
+                  const adminAny = admin as any;
+                  if (adminAny.telegramId) {
+                      await this.sendMsg(systemBot, adminAny.telegramId, adminMsg);
+                  }
+              }
+          }
+       }
+    }
+    this.logger.debug('Markazlar muddati tekshiruvi yakunlandi.');
+  }
+
   private async sendMsg(token: string, chatId: string, text: string) {
     try {
       await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {

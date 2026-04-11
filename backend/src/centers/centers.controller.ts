@@ -24,13 +24,16 @@ export class CentersController {
         botToken: data.botToken,
         eskizEmail: data.eskizEmail,
         eskizPassword: data.eskizPassword,
-        smsEnabled: data.smsEnabled || false
-      }
+        smsEnabled: data.smsEnabled || false,
+        tariff: data.tariff || "Standart",
+        tariffType: data.tariffType || "Monthly",
+        tariffStartedAt: data.tariffStartedAt ? new Date(data.tariffStartedAt) : null,
+        tariffExpiresAt: data.tariffExpiresAt ? new Date(data.tariffExpiresAt) : null,
+      } as any
     });
 
     try {
         // Automatically create a related user with OWNER role
-        // @ts-ignore
         await this.prisma.user.create({
             data: {
                 name: data.name + " (Boshqaruvchi)",
@@ -38,7 +41,7 @@ export class CentersController {
                 password: data.pass,
                 role: 'OWNER',
                 centerId: center.id
-            }
+            } as any
         });
     } catch(err) {
         console.error("Owner user creation failed", err);
@@ -65,8 +68,12 @@ export class CentersController {
         botToken: data.botToken,
         eskizEmail: data.eskizEmail,
         eskizPassword: data.eskizPassword,
-        smsEnabled: data.smsEnabled
-      }
+        smsEnabled: data.smsEnabled,
+        tariff: data.tariff,
+        tariffType: data.tariffType,
+        tariffStartedAt: data.tariffStartedAt ? new Date(data.tariffStartedAt) : undefined,
+        tariffExpiresAt: data.tariffExpiresAt ? new Date(data.tariffExpiresAt) : undefined,
+      } as any
     });
   }
 
