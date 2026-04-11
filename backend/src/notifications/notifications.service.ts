@@ -112,25 +112,31 @@ export class NotificationsService {
     }
 
     if (user?.role === 'TEACHER') {
-      if (target !== 'GROUP' && target !== 'GROUP_PARENTS') {
-        throw new Error('Siz faqat o\'z guruhlaringizga xabar yuborishingiz mumkin');
-      }
-      if (!groupId) {
-         throw new Error('Guruh tanlanmagan');
-      }
-      const groupCheck = await this.prisma.group.findFirst({
-        where: { id: groupId, centerId, teacher: user.name }
-      });
-      if (!groupCheck) {
-        throw new Error('Sizga faqat o\'z guruhlaringizga xabar yuborishga ruxsat etilgan');
+      if (target === 'STUDENTS' || target === 'PARENTS') {
+           // Allowed - will filter by teacher groups below
+      } else if (target === 'GROUP' || target === 'GROUP_PARENTS') {
+           if (!groupId) {
+             throw new Error('Guruh tanlanmagan');
+           }
+           const groupCheck = await this.prisma.group.findFirst({
+             where: { id: groupId, centerId, teacher: user.name }
+           });
+           if (!groupCheck) {
+             throw new Error('Sizga faqat o\'z guruhlaringizga xabar yuborishga ruxsat etilgan');
+           }
+      } else {
+           throw new Error('Siz faqat o\'z guruhlaringiz yoki o\'quvchilaringizga xabar yuborishingiz mumkin');
       }
     }
 
     let recipients = [];
+    const teacherFilter = user?.role === 'TEACHER' ? {
+        groups: { some: { teacher: user.name } }
+    } : {};
 
     if (target === 'STUDENTS' || target === 'ALL') {
       const students = await this.prisma.student.findMany({
-        where: { centerId, status: 'Active', telegramId: { not: null } },
+        where: { centerId, status: 'Active', telegramId: { not: null }, ...teacherFilter },
         select: { telegramId: true, name: true }
       });
       recipients.push(...students.map(s => ({ chatId: s.telegramId, name: s.name })));
@@ -164,7 +170,7 @@ export class NotificationsService {
 
     if (target === 'PARENTS' || target === 'ALL') {
       const parents = await this.prisma.student.findMany({
-        where: { centerId, status: 'Active', parentTelegramId: { not: null } },
+        where: { centerId, status: 'Active', parentTelegramId: { not: null }, ...teacherFilter },
         select: { parentTelegramId: true, name: true }
       });
       recipients.push(...parents.map(s => ({ chatId: s.parentTelegramId, name: `Parent of ${s.name}` })));
