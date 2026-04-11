@@ -9,7 +9,7 @@ export class PaymentsController {
 
   @Post()
   create(@Request() req: any, @Body() body: { studentId: number, courseId: number, amount: number, paymentType?: string, notes?: string, periodFrom?: string, periodTo?: string }) {
-    return this.paymentsService.create(req.user.centerId, {
+    return this.paymentsService.create(req.user.centerId, req.user.id, {
       ...body,
       paymentType: body.paymentType || 'CASH',
       periodFrom: body.periodFrom ? new Date(body.periodFrom) : undefined,

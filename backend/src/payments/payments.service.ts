@@ -6,7 +6,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 export class PaymentsService {
   constructor(private prisma: PrismaService, private notifications: NotificationsService) { }
 
-  async create(centerId: number, data: { studentId: number, courseId: number, amount: number, paymentType?: string, notes?: string, periodFrom?: Date, periodTo?: Date }) {
+  async create(centerId: number, userId: number, data: { studentId: number, courseId: number, amount: number, paymentType?: string, notes?: string, periodFrom?: Date, periodTo?: Date }) {
     const payment = await (this.prisma.payment as any).create({
       data: {
         amount: data.amount,
@@ -18,10 +18,12 @@ export class PaymentsService {
         student: { connect: { id: data.studentId } },
         course: { connect: { id: data.courseId } },
         center: { connect: { id: centerId } },
+        user: { connect: { id: userId } },
       },
       include: {
         student: true,
         course: true,
+        user: true,
       }
     });
 
@@ -44,6 +46,7 @@ export class PaymentsService {
           }
         },
         course: true,
+        user: true,
       },
       orderBy: { createdAt: 'desc' },
     });

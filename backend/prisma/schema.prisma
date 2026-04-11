@@ -16,6 +16,7 @@ model User {
   specialization String?
   centerId       Int?
   center    Center?  @relation(fields: [centerId], references: [id])
+  payments  Payment[]
   createdAt DateTime @default(now())
 }
 model Center {
@@ -106,6 +107,8 @@ model Payment {
   center      Center   @relation(fields: [centerId], references: [id])
   course      Course   @relation(fields: [courseId], references: [id])
   student     Student  @relation(fields: [studentId], references: [id])
+  userId      Int?
+  user        User?    @relation(fields: [userId], references: [id])
 }
 
 model Attendance {
