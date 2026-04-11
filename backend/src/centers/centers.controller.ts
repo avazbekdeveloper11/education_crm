@@ -14,6 +14,69 @@ export class CentersController {
     });
   }
 
+  // ===== STATIC ROUTES FIRST (before :id) =====
+
+  @Get('me/profile')
+  async getMe(@Req() req: any) {
+    const centerId = req.user.centerId;
+    if (!centerId) return null;
+    return this.prisma.center.findUnique({
+      where: { id: centerId }
+    });
+  }
+
+  @Get('upgrade-requests')
+  async getUpgradeRequests() {
+    return (this.prisma as any).subscriptionRequest.findMany({
+      where: { status: 'Pending' },
+      include: { center: true },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  @Put('me/credentials')
+  async updateMe(@Req() req: any, @Body() data: any) {
+    const centerId = req.user.centerId;
+    if (!centerId) return { error: 'No center assigned' };
+    return this.prisma.center.update({
+      where: { id: centerId },
+      data: {
+        login: data.login,
+        password: data.password
+      }
+    });
+  }
+
+  @Put('me/profile')
+  async updateProfile(@Req() req: any, @Body() data: any) {
+    const centerId = req.user.centerId;
+    if (!centerId) return { error: 'No center assigned' };
+    return this.prisma.center.update({
+      where: { id: centerId },
+      data: {
+        name: data.name,
+        botToken: data.botToken,
+        eskizEmail: data.eskizEmail,
+        eskizPassword: data.eskizPassword,
+        smsEnabled: data.smsEnabled
+      } as any
+    });
+  }
+
+  @Post('request-upgrade')
+  async requestUpgrade(@Req() req: any, @Body() data: { tariff: string }) {
+    const centerId = req.user.centerId;
+    return (this.prisma as any).subscriptionRequest.create({
+      data: {
+        centerId,
+        tariff: data.tariff,
+        status: 'Pending'
+      }
+    });
+  }
+
+  // ===== PARAMETERIZED ROUTES LAST =====
+
   @Post()
   async create(@Body() data: any) {
     console.log("Creating center with data:", data);
@@ -90,63 +153,6 @@ export class CentersController {
     return this.prisma.center.update({
       where: { id: parseInt(id) },
       data: updateData
-    });
-  }
-
-  @Put('me/credentials')
-  async updateMe(@Req() req: any, @Body() data: any) {
-    const centerId = req.user.centerId;
-    return this.prisma.center.update({
-      where: { id: centerId },
-      data: {
-        login: data.login,
-        password: data.password
-      }
-    });
-  }
-
-  @Put('me/profile')
-  async updateProfile(@Req() req: any, @Body() data: any) {
-    const centerId = req.user.centerId;
-    return this.prisma.center.update({
-      where: { id: centerId },
-      data: {
-        name: data.name,
-        botToken: data.botToken,
-        eskizEmail: data.eskizEmail,
-        eskizPassword: data.eskizPassword,
-        smsEnabled: data.smsEnabled
-      } as any
-    });
-  }
-
-  @Post('request-upgrade')
-  async requestUpgrade(@Req() req: any, @Body() data: { tariff: string }) {
-    const centerId = req.user.centerId;
-    return (this.prisma as any).subscriptionRequest.create({
-      data: {
-        centerId,
-        tariff: data.tariff,
-        status: 'Pending'
-      }
-    });
-  }
-
-  
-  @Get('upgrade-requests')
-  async getUpgradeRequests() {
-    return (this.prisma as any).subscriptionRequest.findMany({
-      where: { status: 'Pending' },
-      include: { center: true },
-      orderBy: { createdAt: 'desc' }
-    });
-  }
-  @Get('me/profile')
-  async getMe(@Req() req: any) {
-    const centerId = req.user.centerId;
-    if (!centerId) return null;
-    return this.prisma.center.findUnique({
-      where: { id: centerId }
     });
   }
 }
