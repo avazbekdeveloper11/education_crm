@@ -14,6 +14,9 @@ export class StudentsController {
 
   @Post()
   async create(@Req() req: any, @Body() body: any) {
+    if (req.user.role === 'CASHIER') {
+        throw new Error('Kassirga talaba yaratish huquqi berilmagan');
+    }
     return this.studentsService.create(body, req.user.centerId);
   }
 
@@ -29,6 +32,9 @@ export class StudentsController {
 
   @Delete(':id')
   async remove(@Req() req: any, @Param('id') id: string) {
+    if (req.user.role === 'CASHIER') {
+        throw new Error('Kassirga talabani o\'chirish huquqi berilmagan');
+    }
     return this.studentsService.remove(parseInt(id), req.user.centerId);
   }
 }
