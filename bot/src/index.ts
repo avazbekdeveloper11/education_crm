@@ -206,7 +206,7 @@ class BotManager {
 
         if (!student) {
           if (ctx.session.step === "idle") {
-            return ctx.reply("Siz tizimda ro'yxatdan o'tmagansiz. Iltimos, /start buyrug'ini bosing va qayta ro'yxatdan o'ting.");
+            return ctx.reply("Siz hali tizimda ro'yxatdan o'tmagansiz yoki ota-ona sifatida bog'lanmagansiz.\n\nIltimos, ro'yxatdan o'tish uchun /start buyrug'ini bosing yoki farzandingiz yuborgan maxsus havoladan foydalaning.");
           }
           return;
         }
