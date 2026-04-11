@@ -84,7 +84,10 @@ class BotManager {
           },
           include: { 
             attendance: {
-              where: { date: { gte: new Date(year, month, 1), lt: new Date(year, month + 1, 1) } },
+              where: { 
+                centerId,
+                date: { gte: new Date(year, month, 1), lt: new Date(year, month + 1, 1) } 
+              },
               orderBy: { date: 'desc' },
               include: { group: true }
             }
@@ -165,7 +168,6 @@ class BotManager {
           return ctx.reply("Kechirasiz, bu raqam tizimda topilmadi. Admin bilan bog'laning.");
         }
 
-        // Tozalash: boshqa centerlarda bo'lishi mumkinligi sababli telegramId ni update qilamiz
         await prisma.student.update({
           where: { id: activeStudent.id },
           data: { telegramId: ctx.from.id.toString() }
@@ -204,7 +206,7 @@ class BotManager {
           return ctx.reply(
             `✅ Ota-onangiz raqami saqlandi!\n\n` +
             `<b>⚠️ DIQQAT: Botni bloklasangiz farzandingiz botdan foydalana olmaydi.</b>\n\n` +
-            `Endi ushbu havolani ota-onangizga yuboring. Ular botga kirib <b>"Tasdiqlash"</b> tugmasini bosishlari shart:`,
+            `Ushbu xabarni ota-onangizga yuboring. Ular botga kirib <b>"Tasdiqlash"</b> tugmasini bosishlari shart:`,
             { parse_mode: "HTML", reply_markup: keyboard }
           );
         }
@@ -216,8 +218,12 @@ class BotManager {
             OR: [{ telegramId: userId }, { parentTelegramId: userId }] 
           },
           include: { 
-            courses: true, 
-            payments: { orderBy: { paymentDate: 'desc' } } 
+            courses: true,
+            payments: { 
+              where: { centerId },
+              orderBy: { paymentDate: 'desc' }, 
+              take: 5 
+            } 
           }
         });
 
@@ -239,6 +245,9 @@ class BotManager {
           }
           return;
         }
+
+        // Filter courses to only this center's courses (many-to-many relation doesn't have centerId filter in Prisma include)
+        const centerCourses = student.courses.filter((c: any) => c.centerId === centerId);
 
         // Check if student is accessing (not parent) and parent is not registered
         const isStudent = student.telegramId === userId;
@@ -269,6 +278,7 @@ class BotManager {
             return ctx.reply("Bekor qilindi.", { reply_markup: mainKeyboard });
           }
 
+          // Try to find the EXCUSED attendance date to link reason to correct date
           let reasonDate = new Date();
           if (ctx.session.studentId) {
             const sevenDaysAgo = new Date();
@@ -294,27 +304,14 @@ class BotManager {
 
         // --- MENU COMMANDS ---
         switch (text) {
-          case "💰 To'lovlar": {
-            if (!student.payments.length) return ctx.reply("Hali to'lovlar mavjud emas. 💳");
-            
-            let pMsg = "💳 <b>SIZNING TO'LOVLARINGIZ</b>\n\n";
-            student.courses.forEach((course) => {
-                const lastPayment = student.payments.find((p) => p.courseId === course.id);
-                pMsg += `📚 <b>${course.name}</b>\n`;
-                if (lastPayment) {
-                    pMsg += `💵 Oxirgi to'lov: <b>${lastPayment.amount.toLocaleString()}</b> so'm\n`;
-                    pMsg += `📅 To'lov kuni: ${formatDateUz(lastPayment.paymentDate)}\n`;
-                    if (lastPayment.paidUntil) {
-                        pMsg += `⌛️ <b>Amal qilish muddati:</b> <code>${formatDateUz(lastPayment.paidUntil)}</code> gacha ✅\n`;
-                    }
-                } else {
-                    pMsg += "❌ Ushbu kurs uchun to'lov topilmadi.\n";
-                }
-                pMsg += "___________________\n\n";
+          case "💰 To'lovlar":
+            if (!student.payments.length) return ctx.reply("Hali to'lovlar yo'q.");
+            let pMsg = "💳 <b>OXIRGI TO'LOVLAR:</b>\n\n";
+            student.payments.forEach(p => {
+              pMsg += `💵 ${p.amount.toLocaleString()} so'm\n📅 ${formatDateUz(p.paymentDate)}\n___________________\n\n`;
             });
-            await ctx.reply(pMsg, { parse_mode: "HTML", reply_markup: mainKeyboard });
+            await ctx.reply(pMsg, { parse_mode: "HTML" });
             break;
-          }
 
           case "📅 Davomat":
             const now = new Date();
@@ -323,9 +320,13 @@ class BotManager {
 
           case "📚 Kurslarim":
             let cMsg = "📚 <b>KURSLARINGIZ:</b>\n\n";
-            student.courses.forEach(c => {
-              cMsg += `• ${c.name}\n`;
-            });
+            if (!centerCourses.length) {
+              cMsg += "Hozircha kurslar yo'q.\n";
+            } else {
+              centerCourses.forEach((c: any) => {
+                cMsg += `• ${c.name}\n`;
+              });
+            }
             await ctx.reply(cMsg, { parse_mode: "HTML" });
             break;
 
@@ -334,6 +335,7 @@ class BotManager {
             break;
 
           case "✍️ Kelolmaslik": {
+            // Check if there's an EXCUSED attendance without a reason submitted
             const sevenDaysAgo = new Date();
             sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -349,6 +351,7 @@ class BotManager {
             });
 
             if (excusedAttendance) {
+              // Check if reason already submitted for this date
               const alreadySubmitted = await (prisma as any).absenceRequest.findFirst({
                 where: {
                   studentId: student.id,
@@ -372,6 +375,7 @@ class BotManager {
               }
             }
 
+            // No pending EXCUSED — standard preemptive notice
             ctx.session.step = "awaiting_absence_reason";
             ctx.session.studentId = student.id;
             const cancelKb = new Keyboard().text("❌ Bekor qilish").resized();
@@ -386,13 +390,16 @@ class BotManager {
         const newStatus = ctx.myChatMember.new_chat_member.status;
         const blockedUserId = ctx.from.id.toString();
 
+        // Foydalanuvchi botni blokla yoki o'chirsa
         if (newStatus === "kicked" || newStatus === "left") {
           try {
+            // Shu foydalanuvchi ota-ona sifatida bog'langanmi?
             const studentWithParent = await prisma.student.findFirst({
               where: { centerId, parentTelegramId: blockedUserId }
             });
 
             if (studentWithParent) {
+              // parentTelegramId ni tozalash
               await prisma.student.update({
                 where: { id: studentWithParent.id },
                 data: { parentTelegramId: null }
@@ -407,6 +414,7 @@ class BotManager {
 
       bot.catch((err) => console.error(`[${centerName}] loop error:`, err.message));
 
+      // Botni asenkron ishga tushirish
       bot.start({ 
         onStart: (i) => console.log(`🚀 @${i.username} online`),
         drop_pending_updates: true,
