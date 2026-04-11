@@ -51,6 +51,7 @@ model SubscriptionRequest {
   id        Int      @id @default(autoincrement())
   centerId  Int
   tariff    String
+  tariffType String  @default("Monthly") // Monthly, Yearly
   status    String   @default("Pending") // Pending, Approved, Rejected
   notes     String?
   createdAt DateTime @default(now())

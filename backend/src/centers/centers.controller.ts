@@ -64,14 +64,58 @@ export class CentersController {
   }
 
   @Post('request-upgrade')
-  async requestUpgrade(@Req() req: any, @Body() data: { tariff: string }) {
+  async requestUpgrade(@Req() req: any, @Body() data: { tariff: string; billingCycle?: string }) {
     const centerId = req.user.centerId;
     return (this.prisma as any).subscriptionRequest.create({
       data: {
         centerId,
         tariff: data.tariff,
+        tariffType: data.billingCycle || 'Monthly',
         status: 'Pending'
       }
+    });
+  }
+
+  @Post('approve-upgrade/:requestId')
+  async approveUpgrade(@Param('requestId') requestId: string) {
+    const request = await (this.prisma as any).subscriptionRequest.findUnique({
+      where: { id: parseInt(requestId) }
+    });
+    if (!request) throw new Error('Request not found');
+
+    // Tarifni yangilash
+    const now = new Date();
+    const tariffType = request.tariffType || 'Monthly';
+    const expiresAt = new Date(now);
+    if (tariffType === 'Yearly') {
+      expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+    } else {
+      expiresAt.setMonth(expiresAt.getMonth() + 1);
+    }
+
+    // Markaz tarifini yangilash
+    await this.prisma.center.update({
+      where: { id: request.centerId },
+      data: {
+        tariff: request.tariff,
+        tariffType: tariffType,
+        tariffStartedAt: now,
+        tariffExpiresAt: expiresAt,
+      } as any
+    });
+
+    // So'rovni tasdiqlangan deb belgilash
+    return (this.prisma as any).subscriptionRequest.update({
+      where: { id: parseInt(requestId) },
+      data: { status: 'Approved' }
+    });
+  }
+
+  @Post('reject-upgrade/:requestId')
+  async rejectUpgrade(@Param('requestId') requestId: string) {
+    return (this.prisma as any).subscriptionRequest.update({
+      where: { id: parseInt(requestId) },
+      data: { status: 'Rejected' }
     });
   }
 
