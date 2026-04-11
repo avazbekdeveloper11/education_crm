@@ -66,7 +66,9 @@ export class CentersController {
   @Post('request-upgrade')
   async requestUpgrade(@Req() req: any, @Body() data: { tariff: string; billingCycle?: string }) {
     const centerId = req.user.centerId;
-    return (this.prisma as any).subscriptionRequest.create({
+    
+    // So'rovni bazaga yozish
+    const request = await (this.prisma as any).subscriptionRequest.create({
       data: {
         centerId,
         tariff: data.tariff,
@@ -74,6 +76,38 @@ export class CentersController {
         status: 'Pending'
       }
     });
+
+    // Markaz nomini olish
+    let centerName = 'Noma\'lum';
+    try {
+      const center = await this.prisma.center.findUnique({ where: { id: centerId } });
+      if (center) centerName = center.name;
+    } catch (e) {}
+
+    // @unex_admin ga Telegram xabar yuborish
+    const botToken = process.env.ADMIN_BOT_TOKEN;
+    const chatId = process.env.ADMIN_CHAT_ID;
+    if (botToken && chatId) {
+      const billingLabel = (data.billingCycle || 'Monthly') === 'Yearly' ? 'Yillik' : 'Oylik';
+      const message = `🔔 <b>YANGI TARIF SO'ROVI</b>\n\n` +
+        `🏢 Markaz: <b>${centerName}</b>\n` +
+        `📦 So'ralgan tarif: <b>${data.tariff}</b>\n` +
+        `📅 To'lov turi: <b>${billingLabel}</b>\n` +
+        `🕐 Vaqt: <code>${new Date().toLocaleString('uz-UZ')}</code>\n\n` +
+        `<i>Setup panelidan tasdiqlang yoki rad eting.</i>`;
+
+      fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message,
+          parse_mode: 'HTML'
+        })
+      }).catch(err => console.error('Admin Telegram xabar xatosi:', err.message));
+    }
+
+    return request;
   }
 
   @Post('approve-upgrade/:requestId')
