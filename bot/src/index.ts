@@ -224,6 +224,21 @@ class BotManager {
           return;
         }
 
+        // Check if student is accessing (not parent) and parent is not registered
+        const isStudent = student.telegramId === userId;
+        const parentNotRegistered = !student.parentTelegramId;
+
+        // Menu items that require parent to be registered
+        const parentRequiredMenus = ["💰 To'lovlar", "📅 Davomat", "📚 Kurslarim"];
+
+        if (isStudent && parentNotRegistered && parentRequiredMenus.includes(text)) {
+          const me = await bot.api.getMe();
+          const link = `https://t.me/${me.username}?start=parent_${student.id}`;
+          return ctx.reply(
+            `⚠️ Ushbu bo'limni ko'rish uchun ota-onangiz avval tizimga ro'yxatdan o'tishi kerak.\n\nQuyidagi havolani ota-onangizga yuboring:\n🔗 ${link}\n\nOta-onangiz havolani bosib, telefon raqamini tasdiqlasa, siz ham to'liq imkoniyatlardan foydalana olasiz.`
+          );
+        }
+
         // Handle Absence Reason
         if (ctx.session.step === "awaiting_absence_reason") {
           if (text === "❌ Bekor qilish") {
