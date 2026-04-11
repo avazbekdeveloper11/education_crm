@@ -288,12 +288,40 @@ class BotManager {
         }
       });
 
+      // Ota-ona botni bloklaganda parentTelegramId ni tozalash
+      bot.on("my_chat_member", async (ctx) => {
+        const newStatus = ctx.myChatMember.new_chat_member.status;
+        const blockedUserId = ctx.from.id.toString();
+
+        // Foydalanuvchi botni blokla yoki o'chirsa
+        if (newStatus === "kicked" || newStatus === "left") {
+          try {
+            // Shu foydalanuvchi ota-ona sifatida bog'langanmi?
+            const studentWithParent = await prisma.student.findFirst({
+              where: { centerId, parentTelegramId: blockedUserId }
+            });
+
+            if (studentWithParent) {
+              // parentTelegramId ni tozalash
+              await prisma.student.update({
+                where: { id: studentWithParent.id },
+                data: { parentTelegramId: null }
+              });
+              console.log(`[${centerName}] ⚠️ Ota-ona botni blokladi. parentTelegramId tozalandi: student ${studentWithParent.id}`);
+            }
+          } catch (err: any) {
+            console.error(`[${centerName}] my_chat_member xatosi:`, err.message);
+          }
+        }
+      });
+
       bot.catch((err) => console.error(`[${centerName}] loop error:`, err.message));
 
       // Botni asenkron ishga tushirish
       bot.start({ 
         onStart: (i) => console.log(`🚀 @${i.username} online`),
-        drop_pending_updates: true 
+        drop_pending_updates: true,
+        allowed_updates: ["message", "callback_query", "my_chat_member"]
       }).catch(err => {
         console.error(`❌ [${centerName}] start crash:`, err.message);
       });
