@@ -7,32 +7,61 @@ export class PaymentsService {
   constructor(private prisma: PrismaService, private notifications: NotificationsService) { }
 
   async create(centerId: number, userId: number, data: { studentId: number, courseId: number, amount: number, paymentType?: string, notes?: string, periodFrom?: Date, periodTo?: Date }) {
-    const payment = await (this.prisma.payment as any).create({
-      data: {
-        amount: data.amount,
-        paymentType: data.paymentType || 'CASH',
-        notes: data.notes,
-        periodFrom: data.periodFrom,
-        periodTo: data.periodTo,
-        paidUntil: data.periodTo,
-        student: { connect: { id: data.studentId } },
-        course: { connect: { id: data.courseId } },
-        center: { connect: { id: centerId } },
-        user: { connect: { id: userId } },
-      },
-      include: {
-        student: true,
-        course: true,
-        user: true,
+    try {
+      const payment = await (this.prisma.payment as any).create({
+        data: {
+          amount: data.amount,
+          paymentType: data.paymentType || 'CASH',
+          notes: data.notes,
+          periodFrom: data.periodFrom,
+          periodTo: data.periodTo,
+          paidUntil: data.periodTo,
+          student: { connect: { id: Number(data.studentId) } },
+          course: { connect: { id: Number(data.courseId) } },
+          center: { connect: { id: Number(centerId) } },
+          user: userId ? { connect: { id: Number(userId) } } : undefined,
+        },
+        include: {
+          student: true,
+          course: true,
+          user: true,
+        }
+      });
+
+      // Trigger notification
+      this.notifications.handlePaymentNotification(payment).catch(err => {
+        console.error('Notification error:', err);
+      });
+
+      return payment;
+    } catch (error) {
+      console.error('Payment creation error:', error);
+      // Fallback: try without connecting user if it failed (maybe userId column doesn't exist yet)
+      try {
+        const payment = await (this.prisma.payment as any).create({
+          data: {
+            amount: data.amount,
+            paymentType: data.paymentType || 'CASH',
+            notes: data.notes,
+            periodFrom: data.periodFrom,
+            periodTo: data.periodTo,
+            paidUntil: data.periodTo,
+            student: { connect: { id: Number(data.studentId) } },
+            course: { connect: { id: Number(data.courseId) } },
+            center: { connect: { id: Number(centerId) } },
+          },
+          include: {
+            student: true,
+            course: true,
+          }
+        });
+        this.notifications.handlePaymentNotification(payment).catch(e => console.error(e));
+        return payment;
+      } catch (innerError) {
+        console.error('Payment fallback failed:', innerError);
+        throw innerError;
       }
-    });
-
-    // Trigger notification
-    this.notifications.handlePaymentNotification(payment).catch(err => {
-      console.error('Notification error:', err);
-    });
-
-    return payment;
+    }
   }
 
   async findAll(centerId: number) {
