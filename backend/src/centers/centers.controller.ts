@@ -66,16 +66,29 @@ export class CentersController {
   @Post('request-upgrade')
   async requestUpgrade(@Req() req: any, @Body() data: { tariff: string; billingCycle?: string }) {
     const centerId = req.user.centerId;
+    if (!centerId) return { error: 'No center assigned' };
     
-    // So'rovni bazaga yozish
-    const request = await (this.prisma as any).subscriptionRequest.create({
-      data: {
-        centerId,
-        tariff: data.tariff,
-        tariffType: data.billingCycle || 'Monthly',
-        status: 'Pending'
-      }
-    });
+    // So'rovni bazaga yozish (tariffType maydoni bo'lmasa ham ishlashi uchun)
+    let request;
+    try {
+      request = await (this.prisma as any).subscriptionRequest.create({
+        data: {
+          centerId,
+          tariff: data.tariff,
+          tariffType: data.billingCycle || 'Monthly',
+          status: 'Pending'
+        }
+      });
+    } catch (e) {
+      // tariffType ustuni hali mavjud bo'lmasa, usiz yaratamiz
+      request = await (this.prisma as any).subscriptionRequest.create({
+        data: {
+          centerId,
+          tariff: data.tariff,
+          status: 'Pending'
+        }
+      });
+    }
 
     // Markaz nomini olish
     let centerName = 'Noma\'lum';
