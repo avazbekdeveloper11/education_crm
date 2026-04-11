@@ -192,8 +192,20 @@ class BotManager {
 
           const me = await bot.api.getMe();
           const link = `https://t.me/${me.username}?start=parent_${ctx.session.studentId}`;
+          const shareLink = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("Assalomu alaykum! Farzandingiz darslarini kuzatib borish uchun ushbu botdan ro'yxatdan o'ting:")}`;
+          
           ctx.session.step = "idle";
-          return ctx.reply(`✅ Saqlandi. Endi ushbu havolani ota-onangizga yuboring:\n\n${link}`);
+          const keyboard = new InlineKeyboard()
+            .url("✅ Tasdiqlash", link)
+            .row()
+            .url("📲 Ota-onaga yuborish", shareLink);
+
+          return ctx.reply(
+            `✅ Ota-onangiz raqami saqlandi!\n\n` +
+            `<b>⚠️ DIQQAT:</b> Agar ota-onangiz botni bloklasalar, siz bot xizmatlaridan foydalana olmaysiz.\n\n` +
+            `Ushbu xabarni ota-onangizga yuboring. Ular botga kirib <b>"Tasdiqlash"</b> tugmasini bosishlari shart:`,
+            { parse_mode: "HTML", reply_markup: keyboard }
+          );
         }
 
         const student = await prisma.student.findFirst({
@@ -231,8 +243,18 @@ class BotManager {
         if (isStudent && parentNotRegistered) {
           const me = await bot.api.getMe();
           const link = `https://t.me/${me.username}?start=parent_${student.id}`;
+          const shareLink = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("Assalomu alaykum! Farzandingiz darslarini kuzatib borish uchun ushbu botdan ro'yxatdan o'ting:")}`;
+          
+          const keyboard = new InlineKeyboard()
+            .url("✅ Tasdiqlash", link)
+            .row()
+            .url("📲 Ota-onaga yuborish", shareLink);
+
           return ctx.reply(
-            `⚠️ Botdan foydalanish uchun ota-onangiz avval tizimga ro'yxatdan o'tishi shart.\n\nQuyidagi havolani ota-onangizga yuboring:\n🔗 ${link}\n\nOta-onangiz ushbu havolani bosib, telefon raqamini tasdiqlashlari kerak. Shundan so'ng sizga ruxsat ochiladi.`
+            `⚠️ Botdan foydalanish uchun ota-onangiz avval tizimga ro'yxatdan o'tishi shart.\n\n` +
+            `<b>⚠️ DIQQAT:</b> Agar ota-onangiz botni bloklasalar, siz botdan foydalana olmaysiz.\n\n` +
+            `Quyidagi tugma orqali havolani ota-onangizga yuboring yoki ularga ushbu xabarni forward qiling:`,
+            { parse_mode: "HTML", reply_markup: keyboard }
           );
         }
 
