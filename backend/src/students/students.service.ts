@@ -6,6 +6,7 @@ export class StudentsService {
   constructor(private prisma: PrismaService) {}
 
   async findAll(centerId: number) {
+    if (!centerId) return []; // Super Admin uchun bo'sh ro'yxat, xato bermasligi uchun
     // @ts-ignore
     return this.prisma.student.findMany({
       where: { centerId },

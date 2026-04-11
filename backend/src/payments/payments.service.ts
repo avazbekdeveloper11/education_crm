@@ -36,6 +36,7 @@ export class PaymentsService {
   }
 
   async findAll(centerId: number) {
+    if (!centerId) return [];
     // @ts-ignore
     return this.prisma.payment.findMany({
       where: { centerId },

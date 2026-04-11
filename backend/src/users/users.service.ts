@@ -6,6 +6,7 @@ export class UsersService {
   constructor(private prisma: PrismaService) { }
 
   async findAll(centerId: number) {
+    if (!centerId) return [];
     // @ts-ignore
     return this.prisma.user.findMany({
       where: { centerId },

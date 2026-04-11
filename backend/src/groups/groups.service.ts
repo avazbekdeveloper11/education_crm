@@ -6,6 +6,7 @@ export class GroupsService {
   constructor(private prisma: PrismaService) { }
 
   async findAll(centerId: number, user: any) {
+    if (!centerId) return [];
     const where: any = { centerId };
 
     // If teacher, only show their groups

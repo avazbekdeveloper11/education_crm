@@ -16,6 +16,7 @@ export class LeadsService {
   }
 
   async getLeads(centerId: number, query?: { status?: string; courseId?: number }) {
+    if (!centerId) return [];
     return this.prisma.lead.findMany({
       where: {
         centerId,
@@ -42,6 +43,7 @@ export class LeadsService {
   }
   
   async getReminders(centerId: number) {
+    if (!centerId) return [];
     return this.prisma.lead.findMany({
         where: {
             centerId,
