@@ -228,14 +228,11 @@ class BotManager {
         const isStudent = student.telegramId === userId;
         const parentNotRegistered = !student.parentTelegramId;
 
-        // Menu items that require parent to be registered
-        const parentRequiredMenus = ["💰 To'lovlar", "📅 Davomat", "📚 Kurslarim"];
-
-        if (isStudent && parentNotRegistered && parentRequiredMenus.includes(text)) {
+        if (isStudent && parentNotRegistered) {
           const me = await bot.api.getMe();
           const link = `https://t.me/${me.username}?start=parent_${student.id}`;
           return ctx.reply(
-            `⚠️ Ushbu bo'limni ko'rish uchun ota-onangiz avval tizimga ro'yxatdan o'tishi kerak.\n\nQuyidagi havolani ota-onangizga yuboring:\n🔗 ${link}\n\nOta-onangiz havolani bosib, telefon raqamini tasdiqlasa, siz ham to'liq imkoniyatlardan foydalana olasiz.`
+            `⚠️ Botdan foydalanish uchun ota-onangiz avval tizimga ro'yxatdan o'tishi shart.\n\nQuyidagi havolani ota-onangizga yuboring:\n🔗 ${link}\n\nOta-onangiz ushbu havolani bosib, telefon raqamini tasdiqlashlari kerak. Shundan so'ng sizga ruxsat ochiladi.`
           );
         }
 
@@ -245,8 +242,26 @@ class BotManager {
             ctx.session.step = "idle";
             return ctx.reply("Bekor qilindi.", { reply_markup: mainKeyboard });
           }
+
+          // Try to find the EXCUSED attendance date to link reason to correct date
+          let reasonDate = new Date();
+          if (ctx.session.studentId) {
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            const excused = await (prisma as any).attendance.findFirst({
+              where: {
+                studentId: ctx.session.studentId,
+                centerId,
+                status: "EXCUSED",
+                date: { gte: sevenDaysAgo }
+              },
+              orderBy: { date: "desc" }
+            });
+            if (excused) reasonDate = excused.date;
+          }
+
           await (prisma as any).absenceRequest.create({
-            data: { studentId: student.id, centerId, date: new Date(), reason: text }
+            data: { studentId: student.id, centerId, date: reasonDate, reason: text }
           });
           ctx.session.step = "idle";
           return ctx.reply("✅ Sabab saqlandi. Muallim xabardor qilindi.", { reply_markup: mainKeyboard });
@@ -280,11 +295,54 @@ class BotManager {
             await ctx.reply(`👤 <b>PROFIL</b>\n\nIsm: ${student.name}\nMarkaz: ${centerName}\nTel: ${student.phone}`, { parse_mode: "HTML" });
             break;
 
-          case "✍️ Kelolmaslik":
+          case "✍️ Kelolmaslik": {
+            // Check if there's an EXCUSED attendance without a reason submitted
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+            const excusedAttendance = await (prisma as any).attendance.findFirst({
+              where: {
+                studentId: student.id,
+                centerId,
+                status: "EXCUSED",
+                date: { gte: sevenDaysAgo }
+              },
+              orderBy: { date: "desc" },
+              include: { group: true }
+            });
+
+            if (excusedAttendance) {
+              // Check if reason already submitted for this date
+              const alreadySubmitted = await (prisma as any).absenceRequest.findFirst({
+                where: {
+                  studentId: student.id,
+                  centerId,
+                  date: {
+                    gte: new Date(excusedAttendance.date.getTime() - 86400000),
+                    lt: new Date(excusedAttendance.date.getTime() + 86400000)
+                  }
+                }
+              });
+
+              if (!alreadySubmitted) {
+                ctx.session.step = "awaiting_absence_reason";
+                ctx.session.studentId = student.id;
+                const cancelKb = new Keyboard().text("❌ Bekor qilish").resized();
+                await ctx.reply(
+                  `✍️ <b>${formatDateUz(excusedAttendance.date)}</b> kuni (<b>${excusedAttendance.group.name}</b>) sababli deb belgilandinngiz.\n\nIltimos, kelolmaslik sababingizni yozing:`,
+                  { parse_mode: "HTML", reply_markup: cancelKb }
+                );
+                break;
+              }
+            }
+
+            // No pending EXCUSED — standard preemptive notice
             ctx.session.step = "awaiting_absence_reason";
+            ctx.session.studentId = student.id;
             const cancelKb = new Keyboard().text("❌ Bekor qilish").resized();
             await ctx.reply("Darsga kelolmaslik sababini yozing:", { reply_markup: cancelKb });
             break;
+          }
         }
       });
 
