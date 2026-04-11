@@ -84,28 +84,26 @@ export class CentersController {
       if (center) centerName = center.name;
     } catch (e) {}
 
-    // @unex_admin ga Telegram xabar yuborish
-    const botToken = process.env.ADMIN_BOT_TOKEN;
-    const chatId = process.env.ADMIN_CHAT_ID;
-    if (botToken && chatId) {
-      const billingLabel = (data.billingCycle || 'Monthly') === 'Yearly' ? 'Yillik' : 'Oylik';
-      const message = `🔔 <b>YANGI TARIF SO'ROVI</b>\n\n` +
-        `🏢 Markaz: <b>${centerName}</b>\n` +
-        `📦 So'ralgan tarif: <b>${data.tariff}</b>\n` +
-        `📅 To'lov turi: <b>${billingLabel}</b>\n` +
-        `🕐 Vaqt: <code>${new Date().toLocaleString('uz-UZ')}</code>\n\n` +
-        `<i>Setup panelidan tasdiqlang yoki rad eting.</i>`;
+    // "So'rovlar" guruhiga Telegram xabar yuborish
+    const botToken = process.env.ADMIN_BOT_TOKEN || '8529300465:AAHr2v7iG-eCrBlB6nYzE7JHD-h_-vXY0dw';
+    const chatId = process.env.ADMIN_CHAT_ID || '-1003988940257';
+    const billingLabel = (data.billingCycle || 'Monthly') === 'Yearly' ? 'Yillik' : 'Oylik';
+    const message = `🔔 <b>YANGI TARIF SO'ROVI</b>\n\n` +
+      `🏢 Markaz: <b>${centerName}</b>\n` +
+      `📦 So'ralgan tarif: <b>${data.tariff}</b>\n` +
+      `📅 To'lov turi: <b>${billingLabel}</b>\n` +
+      `🕐 Vaqt: <code>${new Date().toLocaleString('uz-UZ')}</code>\n\n` +
+      `<i>Setup panelidan tasdiqlang yoki rad eting.</i>`;
 
-      fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: message,
-          parse_mode: 'HTML'
-        })
-      }).catch(err => console.error('Admin Telegram xabar xatosi:', err.message));
-    }
+    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: message,
+        parse_mode: 'HTML'
+      })
+    }).catch(err => console.error('Admin Telegram xabar xatosi:', err.message));
 
     return request;
   }
