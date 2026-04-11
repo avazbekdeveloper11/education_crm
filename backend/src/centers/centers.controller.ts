@@ -123,7 +123,7 @@ export class CentersController {
   @Post('request-upgrade')
   async requestUpgrade(@Req() req: any, @Body() data: { tariff: string }) {
     const centerId = req.user.centerId;
-    return this.prisma.subscriptionRequest.create({
+    return (this.prisma as any).subscriptionRequest.create({
       data: {
         centerId,
         tariff: data.tariff,
@@ -134,7 +134,7 @@ export class CentersController {
 
   @Get('upgrade-requests')
   async getUpgradeRequests() {
-    return this.prisma.subscriptionRequest.findMany({
+    return (this.prisma as any).subscriptionRequest.findMany({
       where: { status: 'Pending' },
       include: { center: true },
       orderBy: { createdAt: 'desc' }
