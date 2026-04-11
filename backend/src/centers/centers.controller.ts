@@ -141,4 +141,12 @@ export class CentersController {
       orderBy: { createdAt: 'desc' }
     });
   }
+  @Get('me/profile')
+  async getMe(@Req() req: any) {
+    const centerId = req.user.centerId;
+    if (!centerId) return null;
+    return this.prisma.center.findUnique({
+      where: { id: centerId }
+    });
+  }
 }
