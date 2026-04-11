@@ -202,7 +202,7 @@ class BotManager {
 
           return ctx.reply(
             `✅ Ota-onangiz raqami saqlandi!\n\n` +
-            `<b>⚠️ DIQQAT:</b> Agar ota-onangiz botni bloklasalar, siz bot xizmatlaridan foydalana olmaysiz.\n\n` +
+            `<b>⚠️ DIQQAT: Botni bloklasangiz farzandingiz botdan foydalana olmaydi.</b>\n\n` +
             `Ushbu xabarni ota-onangizga yuboring. Ular botga kirib <b>"Tasdiqlash"</b> tugmasini bosishlari shart:`,
             { parse_mode: "HTML", reply_markup: keyboard }
           );
@@ -252,7 +252,7 @@ class BotManager {
 
           return ctx.reply(
             `⚠️ Botdan foydalanish uchun ota-onangiz avval tizimga ro'yxatdan o'tishi shart.\n\n` +
-            `<b>⚠️ DIQQAT:</b> Agar ota-onangiz botni bloklasalar, siz botdan foydalana olmaysiz.\n\n` +
+            `<b>⚠️ DIQQAT: Botni bloklasangiz farzandingiz botdan foydalana olmaydi.</b>\n\n` +
             `Quyidagi tugma orqali havolani ota-onangizga yuboring yoki ularga ushbu xabarni forward qiling:`,
             { parse_mode: "HTML", reply_markup: keyboard }
           );
