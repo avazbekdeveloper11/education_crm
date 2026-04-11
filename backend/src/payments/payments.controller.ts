@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, Delete, UseGuards, Request, ForbiddenException } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { JwtAuthGuard } from '../auth/jwt.strategy';
 
@@ -27,8 +27,19 @@ export class PaymentsController {
     return this.paymentsService.findByStudent(req.user.centerId, +studentId);
   }
 
+  @Put(':id')
+  update(@Request() req: any, @Param('id') id: string, @Body() body: any) {
+    if (req.user.role !== 'OWNER' && req.user.role !== 'SUPER_ADMIN') {
+      throw new ForbiddenException('Faqat Owner yoki Super Admin tahrirlay oladi');
+    }
+    return this.paymentsService.update(req.user.centerId, +id, body);
+  }
+
   @Delete(':id')
   remove(@Request() req: any, @Param('id') id: string) {
+    if (req.user.role !== 'OWNER' && req.user.role !== 'SUPER_ADMIN') {
+      throw new ForbiddenException('Faqat Owner yoki Super Admin o\'chira oladi');
+    }
     return this.paymentsService.remove(req.user.centerId, +id);
   }
 }

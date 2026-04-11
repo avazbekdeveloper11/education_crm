@@ -93,6 +93,30 @@ export class PaymentsService {
     });
   }
 
+  async update(centerId: number, id: number, data: any) {
+    const payment = await (this.prisma.payment as any).findUnique({ where: { id } });
+    if (!payment || (payment as any).centerId !== centerId) {
+      throw new Error('Payment not found or access denied');
+    }
+
+    try {
+        return await (this.prisma.payment as any).update({
+            where: { id },
+            data: {
+                amount: data.amount ? Number(data.amount) : undefined,
+                paymentType: data.paymentType,
+                notes: data.notes,
+                periodFrom: data.periodFrom ? new Date(data.periodFrom) : undefined,
+                periodTo: data.periodTo ? new Date(data.periodTo) : undefined,
+                paidUntil: data.periodTo ? new Date(data.periodTo) : undefined,
+            }
+        });
+    } catch (err) {
+        console.error('Update payment failed:', err);
+        throw err;
+    }
+  }
+
   async remove(centerId: number, id: number) {
     // @ts-ignore
     const payment = await this.prisma.payment.findUnique({ where: { id } });
