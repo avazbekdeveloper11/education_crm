@@ -204,7 +204,12 @@ class BotManager {
           include: { courses: true, payments: { orderBy: { paymentDate: 'desc' }, take: 5 } }
         });
 
-        if (!student) return;
+        if (!student) {
+          if (ctx.session.step === "idle") {
+            return ctx.reply("Siz tizimda ro'yxatdan o'tmagansiz. Iltimos, /start buyrug'ini bosing va qayta ro'yxatdan o'ting.");
+          }
+          return;
+        }
 
         // Handle Absence Reason
         if (ctx.session.step === "awaiting_absence_reason") {
