@@ -145,22 +145,29 @@ p {
 /* Navbar */
 nav {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 48px);
+    max-width: 1200px;
     z-index: 1000;
-    height: 80px;
+    height: 72px;
     display: flex;
     align-items: center;
-    transition: all 0.4s;
-    border-bottom: 1px solid transparent;
+    background: rgba(10, 10, 15, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 nav.scrolled {
-    height: 70px;
-    background: var(--glass);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
+    top: 12px;
+    height: 64px;
+    background: rgba(10, 10, 15, 0.8);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
 }
 
 .logo {
@@ -187,11 +194,14 @@ nav.scrolled {
     color: var(--text-muted);
     font-weight: 500;
     font-size: 14px;
-    transition: color 0.3s;
+    transition: all 0.3s;
+    padding: 8px 12px;
+    border-radius: 8px;
 }
 
 .nav-links a:hover {
     color: var(--text-white);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .nav-actions {
