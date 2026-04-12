@@ -10,6 +10,32 @@ document.addEventListener('mousemove', (e) => {
 
 // Navbar Scroll Effect
 const nav = document.getElementById('navbar');
+const menuToggle = document.getElementById('menu-toggle');
+const navLinks = document.querySelector('.nav-links');
+const menuIcon = menuToggle ? menuToggle.querySelector('i') : null;
+
+if (menuToggle && navLinks) {
+    menuToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+        if (menuIcon) {
+            const currentIcon = navLinks.classList.contains('active') ? 'x' : 'menu';
+            menuIcon.setAttribute('data-lucide', currentIcon);
+            lucide.createIcons();
+        }
+    });
+
+    // Close menu on link click
+    navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+            if (menuIcon) {
+                menuIcon.setAttribute('data-lucide', 'menu');
+                lucide.createIcons();
+            }
+        });
+    });
+}
+
 window.addEventListener('scroll', () => {
     if (nav) {
         if (window.scrollY > 50) {
