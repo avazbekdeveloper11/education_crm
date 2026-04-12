@@ -73,3 +73,59 @@ window.addEventListener('mouseleave', () => {
     mockup.style.transition = 'all 0.5s ease';
     mockup.style.transform = `rotateY(0deg) rotateX(5deg)`;
 });
+
+// Contact Form Submission
+const contactForm = document.getElementById('contact-form');
+const formStatus = document.getElementById('form-status');
+const submitBtn = document.getElementById('submit-btn');
+
+if (contactForm) {
+    contactForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const name = document.getElementById('form-name').value;
+        const phone = document.getElementById('form-phone').value;
+        const desc = document.getElementById('form-desc').value;
+        
+        // Disable button
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.7';
+        formStatus.textContent = "Yuborilmoqda...";
+        formStatus.className = "";
+
+        const botToken = '8529300465:AAHr2v7iG-eCrBlB6nYzE7JHD-h_-vXY0dw';
+        const chatId = '-1003988940257';
+        
+        const message = `📩 <b>YANGI LANDING SO'ROVI</b>\n\n` +
+            `👤 Ism: <b>${name}</b>\n` +
+            `📞 Telefon: <code>${phone}</code>\n` +
+            `📝 Xabar: ${desc || "Yo'q"}\n` +
+            `🕐 Vaqt: ${new Date().toLocaleString('uz-UZ')}`;
+
+        try {
+            const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message,
+                    parse_mode: 'HTML'
+                })
+            });
+
+            if (response.ok) {
+                formStatus.textContent = "Muvaffaqiyatli yuborildi! Tez orada siz bilan bog'lanamiz.";
+                formStatus.className = "success";
+                contactForm.reset();
+            } else {
+                throw new Error();
+            }
+        } catch (error) {
+            formStatus.textContent = "Xatolik yuz berdi. Iltimos qaytadan urinib ko'ring yoki telefon orqali bog'laning.";
+            formStatus.className = "error";
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+        }
+    });
+}

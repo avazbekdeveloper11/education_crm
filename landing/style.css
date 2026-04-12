@@ -63,9 +63,14 @@ p {
 .grid { display: grid; gap: 30px; }
 .grid-3 { grid-template-columns: repeat(3, 1fr); }
 .grid-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-2-1 { grid-template-columns: 1fr 1fr; }
 
 @media (max-width: 1024px) {
-    .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3, .grid-4, .grid-2-1 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .grid-2-1 { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {
@@ -127,6 +132,10 @@ p {
 .btn-glass:hover {
     background: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-full {
+    width: 100%;
 }
 
 /* Navbar */
@@ -501,6 +510,96 @@ footer ul li a:hover {
     border-top: 1px solid var(--border);
     text-align: center;
     font-size: 14px;
+}
+
+/* Contact Section */
+.contact {
+    padding: 100px 0;
+    position: relative;
+    z-index: 1;
+}
+
+.contact-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-top: 50px;
+}
+
+.method-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.method-card i {
+    width: 50px;
+    height: 50px;
+    background: rgba(139, 92, 246, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+}
+
+.contact-form-container form {
+    padding: 40px;
+    border-radius: 30px;
+    border: 1px solid var(--border);
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text-white);
+}
+
+.form-group input, 
+.form-group textarea {
+    width: 100%;
+    padding: 15px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: white;
+    font-family: inherit;
+    font-size: 15px;
+    transition: all 0.3s;
+}
+
+.form-group input:focus, 
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(139, 92, 246, 0.05);
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+}
+
+.form-group textarea {
+    height: 120px;
+    resize: none;
+}
+
+#form-status {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#form-status.success {
+    color: var(--secondary);
+}
+
+#form-status.error {
+    color: #ef4444;
 }
 
 /* Animations */
