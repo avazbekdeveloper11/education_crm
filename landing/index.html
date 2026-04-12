@@ -3,140 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduMarkaz — Zamonaviy O'quv Markazlari Uchun Mukammal CRM</title>
-    <meta name="description" content="EduMarkaz — o'quv markazlari boshqaruvini avtomatlashtirish, talabalar davomati, to'lovlar va Telegram bot integratsiyasi uchun yagona platforma.">
+    <title>EduMarkaz — O'quv Markazlari Uchun Intellektual CRM</title>
+    <meta name="description" content="EduMarkaz — O'quv markazingizni raqamli darajaga ko'taring. Davomat, to'lovlar va marketingni bitta xavfsiz tizimda boshqaring.">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="dark-mode">
+<body>
     <div id="cursor-glow"></div>
 
     <!-- Navigation -->
-    <nav class="glass">
+    <nav id="navbar">
         <div class="container flex justify-between items-center">
-            <div class="logo">
-                <span class="brand">EDUMARKAZ</span>
-                <span class="dot">.</span>
-            </div>
+            <a href="#" class="logo">
+                <span>EDUMARKAZ</span><b class="dot">.</b>
+            </a>
             <ul class="nav-links">
                 <li><a href="#features">Imkoniyatlar</a></li>
-                <li><a href="#tariffs">Tariflar</a></li>
+                <li><a href="#pain">Muammolar</a></li>
                 <li><a href="#contact">Aloqa</a></li>
             </ul>
             <div class="nav-actions">
                 <a href="https://app.unex-edu.uz/login" class="btn btn-outline">Kirish</a>
                 <a href="https://app.unex-edu.uz/setup" class="btn btn-primary">Boshlash</a>
             </div>
-            <div class="menu-toggle">
-                <i data-lucide="menu"></i>
-            </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-bg">
-            <div class="blob blob-1"></div>
-            <div class="blob blob-2"></div>
-        </div>
-        <div class="container text-center">
+    <section class="hero text-center">
+        <div class="glow-orb" style="top: 20%; left: 10%; width: 400px; height: 400px; background: #8b5cf6;"></div>
+        <div class="glow-orb" style="bottom: 10%; right: 10%; width: 500px; height: 500px; background: #d946ef;"></div>
+        
+        <div class="container">
             <div class="badge fade-in">
                 <span class="pulse"></span>
-                <span class="text">YANGI AVLOD CRM PLATFORMASI</span>
+                <span class="text">O'ZBEKISTONDAGI №1 CRM PLATFORMA</span>
             </div>
             <h1 class="fade-in">O'quv Markazingizni <br> <span class="gradient-text">Avtopilotga</span> Qo'ying</h1>
-            <p class="hero-desc fade-in">Talabalar, guruhlar, to'lovlar va xodimlar boshqaruvini bir joyda jamlang. Biznesingizni raqamli darajaga ko'taring.</p>
+            <p class="hero-desc fade-in">
+                Talabalar, to'lovlar va xodimlar boshqaruvidagi tartibsizlikka chek qo'ying. 
+                Biznesingizni raqamli va samarali tizim bilan rivojlantiring.
+            </p>
             <div class="hero-btns fade-in">
-                <a href="https://app.unex-edu.uz/setup" class="btn btn-xl btn-primary">Bepul Sinab Ko'rish</a>
-                <a href="https://t.me/unex_admin" class="btn btn-xl btn-glass">Demo So'rash</a>
+                <a href="https://app.unex-edu.uz/setup" class="btn btn-xl btn-primary">
+                    <i data-lucide="rocket"></i>
+                    BEPUL BOSHLASH
+                </a>
+                <a href="https://t.me/unex_admin" class="btn btn-xl btn-glass">
+                    <i data-lucide="play-circle"></i>
+                    DEMO KO'RISH
+                </a>
             </div>
+
             <div class="hero-mockup fade-in-up">
                 <div class="mockup-container">
-                    <img src="assets/hero.png" alt="EduMarkaz Dashboard">
+                    <img src="assets/hero.png" alt="EduMarkaz Dashboard Mockup">
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Stats Section -->
-    <section class="stats">
-        <div class="container grid grid-4">
-            <div class="stat-card">
-                <div class="num">1000+</div>
-                <div class="label">TALABALAR</div>
+    <!-- Pain Points Section -->
+    <section id="pain" class="pain-points">
+        <div class="container">
+            <div class="text-center" style="margin-bottom: 60px;">
+                <span class="section-tag">CHAXCHADINGIZMI?</span>
+                <h2 class="section-title" style="margin-bottom: 20px;">Eski usullardan voz keching</h2>
             </div>
-            <div class="stat-card">
-                <div class="num">50+</div>
-                <div class="label">O'QUV MARKAZLAR</div>
-            </div>
-            <div class="stat-card">
-                <div class="num">99%</div>
-                <div class="label">MAMNUN MIJOZLAR</div>
-            </div>
-            <div class="stat-card">
-                <div class="num">24/7</div>
-                <div class="label">QO'LLAB-QUVVATLASH</div>
+            <div class="pain-grid">
+                <div class="pain-card reveal">
+                    <h4>To'lovlarni yo'qotish</h4>
+                    <p>Qaysi talaba to'lagan, qaysi biri qarzdor ekanligini qog'ozda yoki Excel'da adashtirib yuboryapsizmi?</p>
+                </div>
+                <div class="pain-card reveal">
+                    <h4>Davomat muammosi</h4>
+                    <p>O'qituvchilar davomatni kech kiritishi yoki umuman kiritmasligi sababli ota-onalar bilan tushunmovchiliklar.</p>
+                </div>
+                <div class="pain-card reveal">
+                    <h4>Xodimlar nazorati</h4>
+                    <p>Administratorlaringiz talabalarga vaqtida qo'ng'iroq qilayotganini yoki lidlarni yo'qotayotganini tekshira olmayapsizmi?</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Features Section -->
+    <!-- Features Section (Bento Grid) -->
     <section id="features" class="features">
         <div class="container">
-            <div class="section-header text-center">
-                <h2 class="section-title">Nega Aynan EduMarkaz?</h2>
-                <p class="section-desc">Biz faqat dastur emas, balki muvaffaqiyatli biznes uchun ekotizim taklif etamiz.</p>
+            <div class="text-center">
+                <span class="section-tag">IMKONIYATLAR</span>
+                <h2 class="section-title">Biznesingiz uchun mukammal qurollar</h2>
             </div>
-            <div class="grid grid-3 feature-grid">
-                <div class="feature-card reveal">
-                    <div class="f-icon blue">
-                        <i data-lucide="users"></i>
-                    </div>
-                    <h3>Talabalar Bazasi</h3>
-                    <p>Mijozlarning to'liq tarixi, statuslari va kontaktlari yagona xavfsiz bazada.</p>
+            
+            <div class="bento-grid">
+                <div class="bento-item large reveal">
+                    <div class="f-icon"><i data-lucide="layout-dashboard"></i></div>
+                    <h3>Intuitiv Boshqaruv Paneli</h3>
+                    <p>Markazingizdagi barcha jarayonlarni — lidlar, guruhlar va moliya — yagona ekranda real vaqt rejimida kuzatib boring.</p>
                 </div>
-                <div class="feature-card reveal">
-                    <div class="f-icon purple">
-                        <i data-lucide="calendar"></i>
-                    </div>
-                    <h3>Dars Jadvallari</h3>
-                    <p>Guruhlar uchun dars vaqtlarini qulay interfeysda rejalashtiring.</p>
+                <div class="bento-item reveal">
+                    <div class="f-icon"><i data-lucide="send"></i></div>
+                    <h3>Telegram Bot Integratsiyasi</h3>
+                    <p>Ota-onalarga avtomatik xabarlar: to'lov xabarnomalari, davomat alertlari va yangiliklar.</p>
                 </div>
-                <div class="feature-card reveal">
-                    <div class="f-icon orange">
-                        <i data-lucide="wallet"></i>
-                    </div>
-                    <h3>Moliya Nazorati</h3>
-                    <p>Kirim-chiqimlar, oylik to'lovlar va qarzdorliklar avtomatik hisob-kitobi.</p>
+                <div class="bento-item vertical reveal">
+                    <div class="f-icon"><i data-lucide="bar-chart-big"></i></div>
+                    <h3>Chukur Tahliliy Hisobotlar</h3>
+                    <p>Darslar samaradorligi, o'qituvchilar reytingi va moliyaviy o'sish dinamikasini professional grafiklarda ko'ring. Endi har bir qaror ma'lumotlarga asoslanadi.</p>
                 </div>
-                <div class="feature-card reveal">
-                    <div class="f-icon green">
-                        <i data-lucide="message-circle"></i>
-                    </div>
-                    <h3>Telegram Bot</h3>
-                    <p>Ota-onalar va o'quvchilar uchun avtomatik bildirishnomalar va davomat alertlari.</p>
+                <div class="bento-item reveal">
+                    <div class="f-icon"><i data-lucide="smartphone"></i></div>
+                    <h3>Mobil Moslashuvchanlik</h3>
+                    <p>Tizim istalgan qurilmada — telefondan tortib planshetgacha mukammal ishlaydi.</p>
                 </div>
-                <div class="feature-card reveal">
-                    <div class="f-icon red">
-                        <i data-lucide="bar-chart-3"></i>
-                    </div>
-                    <h3>Batafsil Statistika</h3>
-                    <p>Markaz rivojlanishini real vaqt rejimida grafiklar va hisobotlar orqali kuzating.</p>
-                </div>
-                <div class="feature-card reveal">
-                    <div class="f-icon yellow">
-                        <i data-lucide="shield-check"></i>
-                    </div>
-                    <h3>Xavfsiz Tizim</h3>
-                    <p>Ma'lumotlaringiz shifrlangan va xavfsiz bulut texnologiyalari bilan himoyalangan.</p>
+                <div class="bento-item reveal">
+                    <div class="f-icon"><i data-lucide="shield-check"></i></div>
+                    <h3>Xavfsizlik Kafolati</h3>
+                    <p>Ma'lumotlaringiz shifrlangan va xalqaro serverlarda xavfsiz saqlanadi.</p>
                 </div>
             </div>
         </div>
@@ -145,46 +136,41 @@
     <!-- Contact Section -->
     <section id="contact" class="contact">
         <div class="container">
-            <div class="grid grid-2-1 contact-wrapper">
+            <div class="contact-wrapper">
                 <div class="contact-info reveal">
-                    <div class="section-header">
-                        <h2 class="section-title">Savollaringiz bormi?</h2>
-                        <p class="section-desc">Biz bilan bog'laning va EduMarkaz tizimi o'quv markazingizga qanday foyda keltirishi haqida bepul konsultatsiya oling.</p>
-                    </div>
-                    <div class="contact-methods">
-                        <div class="method-card">
-                            <i data-lucide="phone-call"></i>
-                            <div>
-                                <h4>Telefon</h4>
-                                <p>+998 93 444 99 63</p>
-                            </div>
+                    <span class="section-tag">BOG'LANISH</span>
+                    <h2 class="section-title" style="margin-bottom: 24px; font-size: 56px;">Savollaringiz bormi?</h2>
+                    <p style="font-size: 18px; margin-bottom: 40px;">Bizning mutaxassislarimiz markazingizni avtomatlashtirish bo'yicha bepul konsultatsiya berishga tayyor.</p>
+                    
+                    <div class="flex" style="gap: 40px; flex-wrap: wrap;">
+                        <div>
+                            <p style="font-size: 14px; margin-bottom: 8px;">Telefon</p>
+                            <h4 style="font-size: 20px;">+998 93 444 99 63</h4>
                         </div>
-                        <div class="method-card">
-                            <i data-lucide="mail"></i>
-                            <div>
-                                <h4>Email</h4>
-                                <p>support@unex-edu.uz</p>
-                            </div>
+                        <div>
+                            <p style="font-size: 14px; margin-bottom: 8px;">Telegram</p>
+                            <h4 style="font-size: 20px;">@unex_admin</h4>
                         </div>
                     </div>
                 </div>
+                
                 <div class="contact-form-container reveal">
-                    <form id="contact-form" class="glass">
+                    <form id="contact-form">
                         <div class="form-group">
                             <label>Ismingiz</label>
-                            <input type="text" id="form-name" placeholder="Masalan: Azizbek" required>
+                            <input type="text" id="form-name" placeholder="Ismingizni kiriting" required>
                         </div>
                         <div class="form-group">
                             <label>Telefon raqamingiz</label>
                             <input type="tel" id="form-phone" placeholder="+998 90 123 45 67" required>
                         </div>
                         <div class="form-group">
-                            <label>Xabaringiz (ixtiyoriy)</label>
-                            <textarea id="form-desc" placeholder="Qo'shimcha ma'lumot qoldiring..."></textarea>
+                            <label>Qo'shimcha xabar</label>
+                            <textarea id="form-desc" placeholder="Savollaringiz bo'lsa yozib qoldiring..."></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-full" id="submit-btn">
-                            <span>YUBORISH</span>
-                            <i data-lucide="send" class="icon-s"></i>
+                        <button type="submit" class="btn btn-primary btn-full btn-xl" id="submit-btn">
+                            <span>SO'ROV YUBORISH</span>
+                            <i data-lucide="arrow-right"></i>
                         </button>
                         <div id="form-status"></div>
                     </form>
@@ -193,55 +179,18 @@
         </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="cta">
-        <div class="container">
-            <div class="cta-inner glass">
-                <h2>Markazingizni Yangi Bosqichga Ko'tarishga <br> Tayyormisiz?</h2>
-                <p>Hozir ro'yxatdan o'ting va 14 kunlik bepul sinov muddatiga ega bo'ling.</p>
-                <div class="cta-btns">
-                    <a href="https://app.unex-edu.uz/setup" class="btn btn-xl btn-primary">BEPUL BOSHLASH</a>
-                    <a href="https://t.me/unex_admin" class="btn btn-xl btn-glass">BIZ BILAN BOG'LANISH</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Footer -->
     <footer>
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-about">
-                    <div class="logo">
-                        <span class="brand">EDUMARKAZ</span>
-                        <span class="dot">.</span>
-                    </div>
-                    <p>O'zbekistondagi o'quv markazlari uchun eng ishonchli va zamonaviy CRM tizimi.</p>
-                    <div class="socials">
-                        <a href="#"><i data-lucide="instagram"></i></a>
-                        <a href="#"><i data-lucide="facebook"></i></a>
-                        <a href="#"><i data-lucide="send"></i></a>
-                    </div>
-                </div>
-                <div class="footer-links">
-                    <h4>Platforma</h4>
-                    <ul>
-                        <li><a href="#features">Imkoniyatlar</a></li>
-                        <li><a href="#tariffs">Tariflar</a></li>
-                        <li><a href="#">Hamkorlik</a></li>
-                    </ul>
-                </div>
-                <div class="footer-contact">
-                    <h4>Aloqa</h4>
-                    <ul>
-                        <li><i data-lucide="phone" class="icon-s"></i> +998 93 444 99 63</li>
-                        <li><i data-lucide="mail" class="icon-s"></i> support@edumarkaz.uz</li>
-                        <li><i data-lucide="map-pin" class="icon-s"></i> Toshkent, O'zbekiston</li>
-                    </ul>
-                </div>
-            </div>
+        <div class="container text-center">
+            <a href="#" class="logo" style="justify-content: center; margin-bottom: 30px;">
+                <span>EDUMARKAZ</span><b class="dot">.</b>
+            </a>
+            <p style="max-width: 500px; margin: 0 auto 40px;">
+                O'zbekistondagi eng zamonaviy va intellektual o'quv markazlari boshqaruv tizimi. 
+                Sizning muvaffaqiyatingiz — bizning maqsadimiz.
+            </p>
             <div class="footer-bottom">
-                <p>&copy; 2024 EduMarkaz CRM. Barcha huquqlar himoyalangan.</p>
+                <p>&copy; 2026 EduMarkaz CRM Cloud. Barcha huquqlar himoyalangan.</p>
             </div>
         </div>
     </footer>

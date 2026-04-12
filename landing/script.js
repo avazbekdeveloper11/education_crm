@@ -1,78 +1,61 @@
 // Cursor Glow Effect
 const glow = document.getElementById('cursor-glow');
 document.addEventListener('mousemove', (e) => {
-    glow.style.left = e.clientX + 'px';
-    glow.style.top = e.clientY + 'px';
-    glow.style.opacity = '1';
+    if (glow) {
+        glow.style.left = e.clientX + 'px';
+        glow.style.top = e.clientY + 'px';
+        glow.style.opacity = '1';
+    }
 });
 
 // Navbar Scroll Effect
-const nav = document.querySelector('nav');
+const nav = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
-    if (window.scrollY > 50) {
-        nav.classList.add('scrolled');
-    } else {
-        nav.classList.remove('scrolled');
+    if (nav) {
+        if (window.scrollY > 50) {
+            nav.classList.add('scrolled');
+        } else {
+            nav.classList.remove('scrolled');
+        }
     }
 });
 
-// Scroll Reveal Animation
+// Scroll Reveal Animation (Intersection Observer)
 const revealElements = document.querySelectorAll('.reveal');
-const revealOnScroll = () => {
-    const triggerBottom = window.innerHeight * 0.85;
-    revealElements.forEach(el => {
-        const top = el.getBoundingClientRect().top;
-        if (top < triggerBottom) {
-            el.classList.add('active');
-        }
-    });
+const observerOptions = {
+    threshold: 0.15,
+    rootMargin: "0px 0px -50px 0px"
 };
 
-window.addEventListener('scroll', revealOnScroll);
-revealOnScroll(); // Initial check
-
-// Performance optimization: Throttle scroll event
-let isScrolling = false;
-window.addEventListener('scroll', () => {
-    if (!isScrolling) {
-        window.requestAnimationFrame(() => {
-            revealOnScroll();
-            isScrolling = false;
-        });
-        isScrolling = true;
-    }
-});
-
-// Smooth scroll for anchors
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            window.scrollTo({
-                top: target.offsetTop - 80,
-                behavior: 'smooth'
-            });
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+            observer.unobserve(entry.target);
         }
     });
-});
+}, observerOptions);
 
-// Mockup Parallax Effect
+revealElements.forEach(el => observer.observe(el));
+
+// Hero Parallax Effect
 const mockup = document.querySelector('.mockup-container');
-window.addEventListener('mousemove', (e) => {
-    const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
-    const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
-    mockup.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
-});
+if (mockup) {
+    window.addEventListener('mousemove', (e) => {
+        const xAxis = (window.innerWidth / 2 - e.pageX) / 40;
+        const yAxis = (window.innerHeight / 2 - e.pageY) / 40;
+        mockup.style.transform = `perspective(1000px) rotateY(${xAxis}deg) rotateX(${yAxis + 2}deg)`;
+    });
 
-window.addEventListener('mouseenter', () => {
-    mockup.style.transition = 'none';
-});
-
-window.addEventListener('mouseleave', () => {
-    mockup.style.transition = 'all 0.5s ease';
-    mockup.style.transform = `rotateY(0deg) rotateX(5deg)`;
-});
+    window.addEventListener('mouseleave', () => {
+        mockup.style.transition = 'all 1s ease';
+        mockup.style.transform = `perspective(1000px) rotateY(0deg) rotateX(2deg)`;
+    });
+    
+    window.addEventListener('mouseenter', () => {
+        mockup.style.transition = 'none';
+    });
+}
 
 // Contact Form Submission
 const contactForm = document.getElementById('contact-form');
@@ -87,9 +70,9 @@ if (contactForm) {
         const phone = document.getElementById('form-phone').value;
         const desc = document.getElementById('form-desc').value;
         
-        // Disable button
+        // UI Feedback
         submitBtn.disabled = true;
-        submitBtn.style.opacity = '0.7';
+        submitBtn.style.opacity = '0.5';
         formStatus.textContent = "Yuborilmoqda...";
         formStatus.className = "";
 
@@ -114,14 +97,14 @@ if (contactForm) {
             });
 
             if (response.ok) {
-                formStatus.textContent = "Muvaffaqiyatli yuborildi! Tez orada siz bilan bog'lanamiz.";
+                formStatus.textContent = "Muvaffaqiyatli yuborildi! Tez orada bog'lanamiz.";
                 formStatus.className = "success";
                 contactForm.reset();
             } else {
                 throw new Error();
             }
         } catch (error) {
-            formStatus.textContent = "Xatolik yuz berdi. Iltimos qaytadan urinib ko'ring yoki telefon orqali bog'laning.";
+            formStatus.textContent = "Xatolik! Qaytadan urinib ko'ring.";
             formStatus.className = "error";
         } finally {
             submitBtn.disabled = false;
