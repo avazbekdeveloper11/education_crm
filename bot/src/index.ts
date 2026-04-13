@@ -211,8 +211,8 @@ class BotManager {
           });
 
           ctx.session.step = "idle";
-          ctx.session.leadPhone = undefined;
-          ctx.session.leadName = undefined;
+          delete ctx.session.leadPhone;
+          delete ctx.session.leadName;
 
           return ctx.reply("Rahmat! Ma'lumotlaringiz ma'muriyatimizga yuborildi. Biz tez orada siz bilan aloqaga chiqamiz! 😊", { reply_markup: { remove_keyboard: true } });
         }
