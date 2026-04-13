@@ -87,6 +87,30 @@ if (mockup) {
 const contactForm = document.getElementById('contact-form');
 const formStatus = document.getElementById('form-status');
 const submitBtn = document.getElementById('submit-btn');
+const phoneInput = document.getElementById('form-phone');
+
+if (phoneInput) {
+    phoneInput.addEventListener('input', function(e) {
+        let input = e.target.value.replace(/\D/g, '').substring(0, 12);
+        
+        if (input.length === 0) {
+            e.target.value = '';
+            return;
+        }
+        
+        if (!input.startsWith('998')) {
+            input = '998' + input;
+        }
+        
+        let format = '+998';
+        if (input.length > 3) format += ' ' + input.substring(3, 5);
+        if (input.length > 5) format += ' ' + input.substring(5, 8);
+        if (input.length > 8) format += ' ' + input.substring(8, 10);
+        if (input.length > 10) format += ' ' + input.substring(10, 12);
+        
+        e.target.value = format;
+    });
+}
 
 if (contactForm) {
     contactForm.addEventListener('submit', async (e) => {
