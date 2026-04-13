@@ -5,8 +5,10 @@ import { format } from "date-fns";
 import { uz } from "date-fns/locale";
 
 interface SessionData {
-  step: "idle" | "awaiting_parent_phone" | "awaiting_parent_contact" | "awaiting_absence_reason";
+  step: "idle" | "awaiting_parent_phone" | "awaiting_parent_contact" | "awaiting_absence_reason" | "awaiting_lead_subject";
   studentId?: number;
+  leadPhone?: string;
+  leadName?: string;
 }
 type MyContext = Context & { session: SessionData };
 
@@ -165,7 +167,15 @@ class BotManager {
         });
 
         if (!activeStudent) {
-          return ctx.reply("Kechirasiz, bu raqam tizimda topilmadi. Admin bilan bog'laning.");
+          ctx.session.step = "awaiting_lead_subject";
+          const leadName = ctx.message.contact.first_name || ctx.from.first_name || "Mijoz";
+          ctx.session.leadPhone = contactPhone;
+          ctx.session.leadName = leadName;
+
+          return ctx.reply(
+            "Tizimimizda talaba sifatida topilmadingiz.\n\nSizni markazimiz bilan qiziqayotgan yangi o'quvchi sifatida ro'yxatga olmoqdamiz. Qaysi fanga (kursga) qiziqasiz? 📚", 
+            { reply_markup: { remove_keyboard: true } }
+          );
         }
 
         await prisma.student.update({
@@ -181,6 +191,31 @@ class BotManager {
       bot.on("message:text", async (ctx) => {
         const text = ctx.message.text;
         const userId = ctx.from.id.toString();
+
+        // Handle Lead Subject Input
+        if (ctx.session.step === "awaiting_lead_subject") {
+          const subject = text;
+          let p = ctx.session.leadPhone || "";
+          if (p.length === 9) p = "998" + p;
+          if (p.length === 12 && !p.startsWith("+")) p = "+" + p;
+          
+          await prisma.lead.create({
+            data: {
+              name: ctx.session.leadName || ctx.from.first_name || "Yangi mijoz",
+              phone: p,
+              source: "Telegram Bot",
+              status: "New",
+              notes: `Mijoz tanlagan fan/kurs: ${subject}`,
+              centerId: centerId
+            }
+          });
+
+          ctx.session.step = "idle";
+          ctx.session.leadPhone = undefined;
+          ctx.session.leadName = undefined;
+
+          return ctx.reply("Rahmat! Ma'lumotlaringiz ma'muriyatimizga yuborildi. Biz tez orada siz bilan aloqaga chiqamiz! 😊", { reply_markup: { remove_keyboard: true } });
+        }
 
         // Handle Parent Phone Input
         if (ctx.session.step === "awaiting_parent_phone" && ctx.session.studentId) {
