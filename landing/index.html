@@ -137,62 +137,108 @@
     <!-- Pricing Section -->
     <section id="pricing" class="pricing">
         <div class="container">
-            <div class="text-center" style="margin-bottom: 60px;">
-                <span class="section-tag">TARIFLAR</span>
-                <h2 class="section-title">O'quv markazingiz uchun qulay narxlar</h2>
+            <div class="text-center" style="margin-bottom: 50px;">
+                <h2 class="section-title italic-title">FAOL TARIFLAR</h2>
+                <span class="section-subtitle">TANLANG VA RIVOJLANING</span>
+                <div class="pricing-toggle">
+                    <span>OYLIK</span>
+                    <label class="switch">
+                        <input type="checkbox" id="pricing-toggle-btn">
+                        <span class="slider round"></span>
+                    </label>
+                    <span>YILLIK</span>
+                    <span class="gift-badge">-2 OY SOVG'A</span>
+                </div>
             </div>
             
             <div class="pricing-grid">
                 <!-- Standart -->
-                <div class="pricing-card reveal">
-                    <div class="pricing-header">
-                        <h3>Standart</h3>
-                        <div class="price"><span>199,000</span> so'm/oy</div>
-                        <p>Kichik markazlar uchun ideal tanlov.</p>
+                <div class="pricing-wrapper reveal">
+                    <div class="current-plan-badge">HOZIRGI TARIF: <span class="bg-purple">STANDART (OYLIK)</span></div>
+                    <div class="pricing-card active-card">
+                        <div class="card-top">
+                            <div class="icon-box blue"><i data-lucide="plus"></i></div>
+                            <div class="price-box">
+                                <span class="price-label">OYLIK TO'LOV</span>
+                                <div class="price">299 000 <span>UZS</span></div>
+                            </div>
+                        </div>
+                        
+                        <h3 class="card-title">STANDART</h3>
+                        
+                        <div class="card-badges">
+                            <span class="c-badge"><i data-lucide="users"></i> 100 O'QUVCHI</span>
+                            <span class="c-badge"><i data-lucide="briefcase"></i> 5 XODIM</span>
+                        </div>
+                        
+                        <ul class="pricing-features">
+                            <li><i data-lucide="check-circle-2" class="purple-check"></i> CRM Lead boshqaruv</li>
+                            <li><i data-lucide="check-circle-2" class="purple-check"></i> To'lovlar va Kassa</li>
+                            <li><i data-lucide="check-circle-2" class="purple-check"></i> Telegram Bot xabarnomalari</li>
+                            <li><i data-lucide="check-circle-2" class="purple-check"></i> SMS xizmati (Eskiz)</li>
+                        </ul>
+                        
+                        <a href="https://app.unex-edu.uz/setup" class="btn btn-dark-green btn-full">✓ HOZIRGI TARIF</a>
                     </div>
-                    <ul class="pricing-features">
-                        <li><i data-lucide="check-circle-2"></i> Cheklanmagan o'qituvchilar</li>
-                        <li><i data-lucide="check-circle-2"></i> 200 tagacha talaba</li>
-                        <li><i data-lucide="check-circle-2"></i> Davomat va to'lovlar reyestri</li>
-                        <li><i data-lucide="check-circle-2"></i> Asosiy hisobotlar</li>
-                        <li class="unavailable"><i data-lucide="x-circle"></i> Telegram bot & xabarlar yo'q</li>
-                    </ul>
-                    <a href="https://app.unex-edu.uz/setup" class="btn btn-outline btn-full" style="margin-top:auto;">Boshlash</a>
                 </div>
                 
                 <!-- Premium -->
-                <div class="pricing-card popular reveal">
-                    <div class="popular-badge">ENG XARIDOR</div>
-                    <div class="pricing-header">
-                        <h3>Premium</h3>
-                        <div class="price"><span>349,000</span> so'm/oy</div>
-                        <p>O'sib borayotgan markazlar uchun barcha kerakli funksiyalar.</p>
+                <div class="pricing-wrapper reveal">
+                    <div class="popular-badge top-badge">OMMABOP</div>
+                    <div class="pricing-card">
+                        <div class="card-top">
+                            <div class="icon-box purple"><i data-lucide="check-circle-2"></i></div>
+                            <div class="price-box">
+                                <span class="price-label">OYLIK TO'LOV</span>
+                                <div class="price">499 000 <span>UZS</span></div>
+                            </div>
+                        </div>
+                        
+                        <h3 class="card-title">PREMIUM</h3>
+                        
+                        <div class="card-badges">
+                            <span class="c-badge"><i data-lucide="users"></i> 400 O'QUVCHI</span>
+                            <span class="c-badge"><i data-lucide="briefcase"></i> 25 XODIM</span>
+                        </div>
+                        
+                        <ul class="pricing-features">
+                            <li><i data-lucide="check-circle-2" class="green-check"></i> Barcha Standart imkoniyatlar</li>
+                            <li><i data-lucide="check-circle-2" class="green-check"></i> Kengaytirilgan Statistika</li>
+                            <li><i data-lucide="check-circle-2" class="green-check"></i> Davomat va Jurnallar</li>
+                            <li><i data-lucide="check-circle-2" class="green-check"></i> Prioritetli qo'llab-quvvatlash</li>
+                        </ul>
+                        
+                        <a href="https://app.unex-edu.uz/setup" class="btn btn-white btn-full">SO'ROV YUBORISH</a>
                     </div>
-                    <ul class="pricing-features">
-                        <li><i data-lucide="check-circle-2"></i> Cheklanmagan o'qituvchilar</li>
-                        <li><i data-lucide="check-circle-2"></i> 700 tagacha talaba</li>
-                        <li><i data-lucide="check-circle-2"></i> Davomat va to'lovlar nazorati</li>
-                        <li><i data-lucide="check-circle-2"></i> Telegram bot orqali xabarlar</li>
-                        <li><i data-lucide="check-circle-2"></i> Chuqur tahliliy hisobotlar</li>
-                    </ul>
-                    <a href="https://app.unex-edu.uz/setup" class="btn btn-primary btn-full" style="margin-top:auto;">Boshlash</a>
                 </div>
                 
                 <!-- VIP -->
-                <div class="pricing-card reveal">
-                    <div class="pricing-header">
-                        <h3>VIP</h3>
-                        <div class="price"><span>599,000</span> so'm/oy</div>
-                        <p>Katta markazlar yoki tarmoqlar avtomatizatsiyasi.</p>
+                <div class="pricing-wrapper reveal">
+                    <div class="pricing-card">
+                        <div class="card-top">
+                            <div class="icon-box orange"><i data-lucide="trending-up"></i></div>
+                            <div class="price-box">
+                                <span class="price-label">OYLIK TO'LOV</span>
+                                <div class="price">999 000 <span>UZS</span></div>
+                            </div>
+                        </div>
+                        
+                        <h3 class="card-title">VIP</h3>
+                        
+                        <div class="card-badges">
+                            <span class="c-badge"><i data-lucide="users"></i> CHEKSIZ O'QUVCHI</span>
+                            <span class="c-badge"><i data-lucide="briefcase"></i> CHEKSIZ XODIM</span>
+                        </div>
+                        
+                        <ul class="pricing-features">
+                            <li><i data-lucide="check-circle-2" class="green-check"></i> Barcha Premium imkoniyatlar</li>
+                            <li><i data-lucide="check-circle-2" class="green-check"></i> Shaxsiy menejer</li>
+                            <li><i data-lucide="check-circle-2" class="green-check"></i> Brand xabarlar</li>
+                            <li><i data-lucide="check-circle-2" class="green-check"></i> Maxsus funksiyalar (Custom)</li>
+                        </ul>
+                        
+                        <a href="https://app.unex-edu.uz/setup" class="btn btn-white-outline btn-full">SO'ROV YUBORISH</a>
                     </div>
-                    <ul class="pricing-features">
-                        <li><i data-lucide="check-circle-2"></i> Barcha premium imkoniyatlar</li>
-                        <li><i data-lucide="check-circle-2"></i> Cheklanmagan talabalar</li>
-                        <li><i data-lucide="check-circle-2"></i> Talabalar uchun maxsus bot</li>
-                        <li><i data-lucide="check-circle-2"></i> Shaxsiy menejer qo'llab-quvvatlashi</li>
-                        <li><i data-lucide="check-circle-2"></i> Yangi funksiyalarga VIP kirish</li>
-                    </ul>
-                    <a href="https://app.unex-edu.uz/setup" class="btn btn-outline btn-full" style="margin-top:auto;">Boshlash</a>
                 </div>
             </div>
         </div>
