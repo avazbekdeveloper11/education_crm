@@ -83,6 +83,47 @@ if (mockup) {
     });
 }
 
+// Pricing Toggle Logic
+const pricingToggleBtn = document.getElementById('pricing-toggle-btn');
+const prices = document.querySelectorAll('.price');
+const billingLabels = document.querySelectorAll('.billing-label');
+
+let isYearly = false;
+
+if (pricingToggleBtn) {
+    pricingToggleBtn.addEventListener('change', (e) => {
+        isYearly = e.target.checked;
+        
+        prices.forEach(priceEl => {
+            const val = isYearly ? priceEl.getAttribute('data-yearly') : priceEl.getAttribute('data-monthly');
+            priceEl.innerHTML = `${val} <span>UZS</span>`;
+        });
+        
+        billingLabels.forEach(label => {
+            label.textContent = isYearly ? "YILLIK TO'LOV" : "OYLIK TO'LOV";
+        });
+    });
+}
+
+// Plan Selection Logic
+const planBtns = document.querySelectorAll('.plan-btn');
+const formDesc = document.getElementById('form-desc');
+
+planBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const planName = btn.getAttribute('data-plan');
+        const billingPeriod = isYearly ? "Yillik" : "Oylik";
+        
+        if (formDesc) {
+            formDesc.value = `Tanlangan tarif: ${planName} (${billingPeriod})\nIltimos, shu tarif bo'yicha ma'lumot bering.`;
+            // Focus on input nicely after scroll
+            setTimeout(() => {
+                formDesc.focus();
+            }, 800);
+        }
+    });
+});
+
 // Contact Form Submission
 const contactForm = document.getElementById('contact-form');
 const formStatus = document.getElementById('form-status');
