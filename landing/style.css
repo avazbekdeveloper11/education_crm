@@ -27,6 +27,8 @@
 html {
     scroll-behavior: smooth;
     font-size: 16px;
+    overflow-x: hidden;
+    width: 100%;
 }
 
 body {
@@ -35,6 +37,7 @@ body {
     color: var(--text-white);
     line-height: 1.6;
     overflow-x: hidden;
+    width: 100%;
 }
 
 .container {
@@ -387,6 +390,13 @@ nav.scrolled {
     margin-bottom: 64px;
 }
 
+@media (max-width: 768px) {
+    .section-title {
+        font-size: 32px;
+        margin-bottom: 40px;
+    }
+}
+
 .bento-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -462,6 +472,13 @@ nav.scrolled {
     gap: 40px;
 }
 
+@media (max-width: 768px) {
+    .pain-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+}
+
 .pain-card {
     border-left: 2px solid #ef4444;
     padding: 20px 30px;
@@ -470,6 +487,110 @@ nav.scrolled {
 .pain-card h4 {
     margin-bottom: 12px;
     color: #fff;
+}
+
+/* Pricing Section */
+.pricing {
+    padding: 100px 0;
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.pricing-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: all 0.4s;
+}
+
+.pricing-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.pricing-card.popular {
+    border-color: var(--primary);
+    background: rgba(139, 92, 246, 0.05);
+}
+
+.popular-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gradient);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 100px;
+    letter-spacing: 0.1em;
+}
+
+.pricing-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid var(--border);
+}
+
+.pricing-header h3 {
+    font-size: 24px;
+    margin-bottom: 16px;
+}
+
+.price {
+    font-size: 16px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+.price span {
+    font-size: 48px;
+    font-weight: 800;
+    color: white;
+}
+
+.pricing-features {
+    list-style: none;
+    margin-bottom: 40px;
+    flex-grow: 1;
+}
+
+.pricing-features li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    font-size: 15px;
+}
+
+.pricing-features li i {
+    color: var(--secondary);
+    width: 20px;
+    height: 20px;
+}
+
+.pricing-features li.unavailable {
+    color: var(--text-muted);
+    opacity: 0.5;
+}
+
+.pricing-features li.unavailable i {
+    color: var(--text-muted);
+}
+
+@media (max-width: 900px) {
+    .pricing-grid { grid-template-columns: 1fr; gap: 24px; }
 }
 
 /* Contact Section */
